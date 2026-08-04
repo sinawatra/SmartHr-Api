@@ -4,6 +4,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -32,10 +34,25 @@ public interface AttendanceRepository extends JpaRepository<AttendanceEntity, Lo
             LocalDateTime end
     );
 
+    Page<AttendanceEntity> findByEmployeeIdAndClockInBetween(
+            Long employeeId, 
+            LocalDateTime start, 
+            LocalDateTime end,
+            Pageable pageable
+    );
+
+    Page<AttendanceEntity> findByEmployeeId(Long employeeId, Pageable pageable);
+
     // 4. Fetch all attendance records across all employees within a date range (for HR/Admin reports)
     List<AttendanceEntity> findByClockInBetweenOrderByClockInDesc(
             LocalDateTime start, 
             LocalDateTime end
+    );
+
+    Page<AttendanceEntity> findByClockInBetween(
+            LocalDateTime start, 
+            LocalDateTime end,
+            Pageable pageable
     );
 
     // 5. Check if an employee has already clocked in today

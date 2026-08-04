@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -12,6 +13,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.smarthr.smarthr.entity.EmployeeDetails;
@@ -24,6 +29,7 @@ import com.smarthr.smarthr.request.CreateEmployeeRequest;
 import com.smarthr.smarthr.request.LoginRequest;
 import com.smarthr.smarthr.response.EmployeeResponse;
 import com.smarthr.smarthr.response.LoginResponse;
+import com.smarthr.smarthr.response.PagedResponse;
 
 @ExtendWith(MockitoExtension.class)
 class EmployeeServiceTest {
@@ -167,5 +173,22 @@ class EmployeeServiceTest {
         when(employeeRepository.existsByUsername("john_doe")).thenReturn(true);
 
         assertThrows(UserAlreadyExistsException.class, () -> employeeService.createEmployee(request));
+    }
+
+    @Test
+    void testGetAllEmployees_Paged() {
+        Pageable pageable = PageRequest.of(0, 10);
+        Page<EmployeeDetails> pageMock = new PageImpl<>(List.of(mockAdmin, mockUser), pageable, 2);
+
+        when(employeeRepository.findAll(pageable)).thenReturn(pageMock);
+
+        PagedResponse<EmployeeResponse> result = employeeService.getAllEmployees(pageable);
+
+        assertNotNull(result);
+        assertEquals(2, result.getContent().size());
+        assertEquals(0, result.getPageNumber());
+        assertEquals(10, result.getPageSize());
+        assertEquals(2, result.getTotalElements());
+        assertEquals(1, result.getTotalPages());
     }
 }

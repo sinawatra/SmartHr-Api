@@ -5,16 +5,27 @@
 
 package com.smarthr.smarthr.controller;
 
+import java.time.LocalDate;
+import java.util.List;
+
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.smarthr.smarthr.request.ClockInRequest;
 import com.smarthr.smarthr.request.ClockOutRequest;
 import com.smarthr.smarthr.response.AttendanceResponse;
+import com.smarthr.smarthr.response.PagedResponse;
 import com.smarthr.smarthr.service.AttendanceService;
 
 /**
@@ -40,5 +51,32 @@ private final AttendanceService attendanceService;
     @PreAuthorize("hasAnyAuthority('USER', 'ADMIN')")
     public ResponseEntity<AttendanceResponse> clockOut(@RequestBody ClockOutRequest request) {
         return ResponseEntity.ok(attendanceService.clockOut(request));
+    }
+
+   @GetMapping("/history/{employeeId}")
+    public ResponseEntity<PagedResponse<AttendanceResponse>> getAttendanceHistory(
+            @PathVariable Long employeeId,
+            @RequestParam(required = false) 
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam(required = false) 
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "clockIn") String sortBy,
+            @RequestParam(defaultValue = "desc") String sortDir) {
+
+        // Default to current month if dates aren't provided by the client
+        if (endDate == null) {
+            endDate = LocalDate.now();
+        }
+        if (startDate == null) {
+            startDate = endDate.withDayOfMonth(1);
+        }
+
+        Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        PagedResponse<AttendanceResponse> history = attendanceService.getAttendanceHistory(employeeId, startDate, endDate, pageable);
+        return ResponseEntity.ok(history);
     }
 }

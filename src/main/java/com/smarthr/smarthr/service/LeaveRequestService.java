@@ -4,6 +4,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,6 +19,7 @@ import com.smarthr.smarthr.repository.LeaveRequestRepository;
 import com.smarthr.smarthr.repository.LeaveTypeRepository;
 import com.smarthr.smarthr.request.CreateLeaveRequest;
 import com.smarthr.smarthr.response.LeaveRequestResponse;
+import com.smarthr.smarthr.response.PagedResponse;
 
 /**
  * Service class handling leave request business logic.
@@ -113,6 +116,21 @@ public class LeaveRequestService {
                 .stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public PagedResponse<LeaveRequestResponse> getRequestsForCurrentUser(Pageable pageable) {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        EmployeeDetails employee = employeeRepository.findByUsername(username)
+                .orElseThrow(() -> new IllegalArgumentException("Employee not found for authenticated user: " + username));
+
+        Page<LeaveRequestEntity> page = leaveRequestRepository.findByEmployeeId(employee.getId(), pageable);
+        List<LeaveRequestResponse> content = page.getContent()
+                .stream()
+                .map(this::mapToResponse)
+                .collect(Collectors.toList());
+
+        return PagedResponse.of(page, content);
     }
 
     private LeaveRequestResponse mapToResponse(LeaveRequestEntity entity) {

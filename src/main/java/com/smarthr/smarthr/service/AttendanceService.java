@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,6 +19,7 @@ import com.smarthr.smarthr.repository.EmployeeRepository;
 import com.smarthr.smarthr.request.ClockInRequest;
 import com.smarthr.smarthr.request.ClockOutRequest;
 import com.smarthr.smarthr.response.AttendanceResponse;
+import com.smarthr.smarthr.response.PagedResponse;
 
 /**
  * Service class handling attendance business logic.
@@ -81,7 +84,7 @@ public class AttendanceService {
 
         if (request.getNotes() != null && !request.getNotes().isBlank()) {
             String updatedNotes = attendance.getNotes() != null 
-                    ? attendance.getNotes() + " | Clock-out note: " + request.getNotes() 
+                    ? " | Clock-in note: " + attendance.getNotes() + " | Clock-out note: " + request.getNotes() 
                     : request.getNotes();
             attendance.setNotes(updatedNotes);
         }
@@ -112,6 +115,25 @@ public class AttendanceService {
                 .stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * Get attendance history for an employee within a date range with pagination
+     */
+    @Transactional(readOnly = true)
+    public PagedResponse<AttendanceResponse> getAttendanceHistory(Long employeeId, LocalDate startDate, LocalDate endDate, Pageable pageable) {
+        LocalDateTime startDateTime = startDate.atStartOfDay();
+        LocalDateTime endDateTime = endDate.atTime(23, 59, 59);
+
+        Page<AttendanceEntity> page = attendanceRepository.findByEmployeeIdAndClockInBetween(
+                employeeId, startDateTime, endDateTime, pageable);
+
+        List<AttendanceResponse> content = page.getContent()
+                .stream()
+                .map(this::mapToResponse)
+                .collect(Collectors.toList());
+
+        return PagedResponse.of(page, content);
     }
 
     // Helper mapper method

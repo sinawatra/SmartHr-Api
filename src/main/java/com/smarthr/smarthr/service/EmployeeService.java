@@ -6,6 +6,9 @@ import java.util.stream.Collectors;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 import com.smarthr.smarthr.entity.EmployeeDetails;
 import com.smarthr.smarthr.entity.RoleEntity;
 import com.smarthr.smarthr.exception.InvalidCredentialsException;
@@ -17,6 +20,7 @@ import com.smarthr.smarthr.request.CreateEmployeeRequest;
 import com.smarthr.smarthr.request.LoginRequest;
 import com.smarthr.smarthr.response.EmployeeResponse;
 import com.smarthr.smarthr.response.LoginResponse;
+import com.smarthr.smarthr.response.PagedResponse;
 
 import com.smarthr.smarthr.security.JwtTokenProvider;
 
@@ -122,6 +126,17 @@ public class EmployeeService {
         return employeeRepository.findAll().stream()
                 .map(EmployeeResponse::fromEntity)
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * Retrieve employees with pagination.
+     */
+    public PagedResponse<EmployeeResponse> getAllEmployees(Pageable pageable) {
+        Page<EmployeeDetails> page = employeeRepository.findAll(pageable);
+        List<EmployeeResponse> content = page.getContent().stream()
+                .map(EmployeeResponse::fromEntity)
+                .collect(Collectors.toList());
+        return PagedResponse.of(page, content);
     }
 
     /**

@@ -12,4 +12,5 @@ import lombok.NoArgsConstructor;
 public class ClockInRequest {
     private Long employeeId;
     private String notes;
+    private String imageFile;
 }

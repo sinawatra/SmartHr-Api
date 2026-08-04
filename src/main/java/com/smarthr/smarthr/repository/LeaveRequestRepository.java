@@ -5,6 +5,8 @@
 
 package com.smarthr.smarthr.repository;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.smarthr.smarthr.entity.LeaveRequestEntity;
@@ -15,4 +17,5 @@ import com.smarthr.smarthr.entity.LeaveRequestEntity;
  */
 public interface LeaveRequestRepository extends JpaRepository<LeaveRequestEntity, Long> {
     java.util.List<LeaveRequestEntity> findByEmployeeId(Long employeeId);
+    Page<LeaveRequestEntity> findByEmployeeId(Long employeeId, Pageable pageable);
 }

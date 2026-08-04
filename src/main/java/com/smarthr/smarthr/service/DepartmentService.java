@@ -3,6 +3,8 @@ package com.smarthr.smarthr.service;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -12,6 +14,7 @@ import com.smarthr.smarthr.repository.CompanyRepository;
 import com.smarthr.smarthr.repository.DepartmentRepository;
 import com.smarthr.smarthr.request.DepartmentRequest;
 import com.smarthr.smarthr.response.DepartmentResponse;
+import com.smarthr.smarthr.response.PagedResponse;
 
 import lombok.RequiredArgsConstructor;
 
@@ -54,6 +57,16 @@ public class DepartmentService {
                 .stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public PagedResponse<DepartmentResponse> getAllDepartments(Pageable pageable) {
+        Page<DepartmentEntity> page = departmentRepository.findAll(pageable);
+        List<DepartmentResponse> content = page.getContent()
+                .stream()
+                .map(this::mapToResponse)
+                .collect(Collectors.toList());
+        return PagedResponse.of(page, content);
     }
 
     @Transactional(readOnly = true)

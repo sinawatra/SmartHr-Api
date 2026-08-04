@@ -15,6 +15,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import com.smarthr.smarthr.entity.AttendanceEntity;
 import com.smarthr.smarthr.entity.EmployeeDetails;
@@ -23,6 +27,7 @@ import com.smarthr.smarthr.repository.EmployeeRepository;
 import com.smarthr.smarthr.request.ClockInRequest;
 import com.smarthr.smarthr.request.ClockOutRequest;
 import com.smarthr.smarthr.response.AttendanceResponse;
+import com.smarthr.smarthr.response.PagedResponse;
 
 @ExtendWith(MockitoExtension.class)
 class AttendanceServiceTest {
@@ -177,5 +182,24 @@ class AttendanceServiceTest {
         assertNotNull(history);
         assertEquals(1, history.size());
         assertEquals(100L, history.get(0).getId());
+    }
+
+    @Test
+    void testGetAttendanceHistory_Paged() {
+        LocalDate startDate = LocalDate.now().minusDays(7);
+        LocalDate endDate = LocalDate.now();
+        Pageable pageable = PageRequest.of(0, 10);
+        Page<AttendanceEntity> pageMock = new PageImpl<>(List.of(mockAttendance), pageable, 1);
+
+        when(attendanceRepository.findByEmployeeIdAndClockInBetween(eq(1L), any(), any(), eq(pageable)))
+                .thenReturn(pageMock);
+
+        PagedResponse<AttendanceResponse> history = attendanceService.getAttendanceHistory(1L, startDate, endDate, pageable);
+
+        assertNotNull(history);
+        assertEquals(1, history.getContent().size());
+        assertEquals(0, history.getPageNumber());
+        assertEquals(10, history.getPageSize());
+        assertEquals(1, history.getTotalElements());
     }
 }
