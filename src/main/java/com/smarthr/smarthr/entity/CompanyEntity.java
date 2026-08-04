@@ -1,18 +1,20 @@
 package com.smarthr.smarthr.entity;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -22,31 +24,35 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 /**
- * Entity representing a department.
+ * Entity representing a company.
  *
  * @author sinawatrarith
  */
 @Entity
-@Table(name = "departments")
+@Table(name = "companies")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class DepartmentEntity {
-    @Id 
+public class CompanyEntity {
+
+    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false, unique = true)
     private String name;
 
-    private String description;
+    private String code;
+    private String address;
+    private String phone;
+    private String email;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "company_id")
+    @OneToMany(mappedBy = "company", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
-    private CompanyEntity company;
+    @Builder.Default
+    private List<DepartmentEntity> departments = new ArrayList<>();
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
@@ -56,5 +62,3 @@ public class DepartmentEntity {
     @Column(name = "updated_at")
     private Instant updatedAt;
 }
-
-

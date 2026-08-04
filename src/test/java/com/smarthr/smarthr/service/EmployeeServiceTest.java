@@ -128,6 +128,7 @@ class EmployeeServiceTest {
         CreateEmployeeRequest request = CreateEmployeeRequest.builder()
                 .username("new_employee")
                 .password("emp123")
+                .roleId(2)
                 .firstName("Jane")
                 .lastName("Smith")
                 .email("jane@smarthr.com")
@@ -143,7 +144,7 @@ class EmployeeServiceTest {
                 .email("jane@smarthr.com")
                 .build();
 
-        when(roleRepository.findByName("USER")).thenReturn(Optional.of(userRoleEntity));
+        when(roleRepository.findById(2)).thenReturn(Optional.of(userRoleEntity));
         when(employeeRepository.existsByUsername("new_employee")).thenReturn(false);
         when(employeeRepository.existsByEmail("jane@smarthr.com")).thenReturn(false);
         when(passwordEncoder.encode("emp123")).thenReturn("encoded_emp123");

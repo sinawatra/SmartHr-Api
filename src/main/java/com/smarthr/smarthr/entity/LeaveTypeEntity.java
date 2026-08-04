@@ -5,20 +5,21 @@
 
 package com.smarthr.smarthr.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-
 /**
  *
  * @author sinawatrarith
  */
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Table(name = "leave_types")
+@Getter             
+@Setter             
+@NoArgsConstructor  
 public class LeaveTypeEntity {
 
     @Id
@@ -36,14 +37,4 @@ public class LeaveTypeEntity {
     @Column(name = "description", columnDefinition = "TEXT")
     private String description;
 
-    public LeaveTypeEntity() {
-    }
-
-    public LeaveTypeEntity(String name, Integer maxDays, String description) {
-        this.name = name;
-        this.maxDays = maxDays;
-        this.description = description;
-    }
-
-    // Getters and Setters omitted for brevity
 }

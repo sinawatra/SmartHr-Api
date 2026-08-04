@@ -11,11 +11,23 @@ package com.smarthr.smarthr.entity;
  * @author sinawatrarith
  */
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+
+import com.smarthr.smarthr.enumeration.LeaveStatus;
+
 @Entity
 @Table(name = "leave_requests")
+@Getter                 // Generates all getters
+@Setter                 // Generates all setters
+@NoArgsConstructor      // Required by JPA/Hibernate
+@AllArgsConstructor     // Optional: handy constructor with all fields
 public class LeaveRequestEntity {
 
     @Id
@@ -46,9 +58,9 @@ public class LeaveRequestEntity {
     @Column(name = "reason", columnDefinition = "TEXT")
     private String reason;
 
-    // Optional: Use EnumType.STRING if you map status to a Java Enum
-    @Column(name = "status", length = 50)
-    private String status; 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false)
+    private LeaveStatus status = LeaveStatus.PENDING;
 
     @Column(name = "approved_at")
     private LocalDateTime approvedAt;
