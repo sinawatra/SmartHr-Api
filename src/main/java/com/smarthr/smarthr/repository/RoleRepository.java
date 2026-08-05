@@ -10,4 +10,5 @@ import com.smarthr.smarthr.entity.RoleEntity;
 @Repository
 public interface RoleRepository extends JpaRepository<RoleEntity, Integer> {
     Optional<RoleEntity> findByName(String name);
+    boolean existsByName(String name);
 }
