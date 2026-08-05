@@ -22,8 +22,8 @@ public class RoleRequest {
 
     public String getName() {
         if (name != null && !name.isBlank()) {
-            return name;
+            return name.toUpperCase();
         }
-        return roleName;
+        return roleName.toUpperCase();
     }
 }
