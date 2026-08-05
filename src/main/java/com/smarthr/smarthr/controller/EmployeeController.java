@@ -1,7 +1,5 @@
 package com.smarthr.smarthr.controller;
 
-import java.util.List;
-
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -26,7 +24,7 @@ import com.smarthr.smarthr.service.EmployeeService;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/employees")
+@RequestMapping("/api/v1/employees")
 @RequiredArgsConstructor
 public class EmployeeController {
 
