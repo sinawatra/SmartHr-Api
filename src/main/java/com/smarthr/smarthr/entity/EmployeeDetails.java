@@ -45,7 +45,9 @@ public class EmployeeDetails {
     private RoleEntity role; 
 
     private Integer companyId;
-    private Integer departmentId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "department_id", referencedColumnName = "id")
+    private DepartmentEntity departmentId;
     private Integer managerId;
 
     public Integer getRoleId() {
