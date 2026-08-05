@@ -74,28 +74,33 @@ public class LeaveRequestService {
     }
 
     @Transactional
-    public void updateStatus(Long id, String statusStr) {
-        // 1. Fetch leave request
+    public void updateStatus(Long id, LeaveStatus newStatus) {
+        // 1. Validate non-null status input
+        if (newStatus == null) {
+            throw new IllegalArgumentException("Leave status cannot be null.");
+        }
+
+        // 2. Fetch leave request
         LeaveRequestEntity leaveRequest = leaveRequestRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Leave request not found with ID: " + id));
 
-        // 2. Parse String to Enum safely
-        LeaveStatus targetStatus;
-        try {
-            targetStatus = LeaveStatus.valueOf(statusStr.trim().toUpperCase());
-        } catch (IllegalArgumentException | NullPointerException e) {
-            throw new IllegalArgumentException("Invalid leave status: '" + statusStr + 
-                    "'. Allowed values: APPROVED, REJECTED, PENDING");
+        // 3. Prevent updating already finalized requests
+        if (leaveRequest.getStatus() != LeaveStatus.PENDING) {
+            throw new IllegalStateException("Cannot update leave request. Current status is already " 
+                    + leaveRequest.getStatus());
         }
 
-        // 3. Update status
-        leaveRequest.setStatus(targetStatus);
-
-        if (targetStatus == LeaveStatus.APPROVED) {
+        // 4. Handle status transitions and domain logic
+        if (newStatus == LeaveStatus.APPROVED) {
+            // Optional: Ensure employee has enough leave balance before approving
+            // validateAndDeductLeaveBalance(leaveRequest);
+            
             leaveRequest.setApprovedAt(LocalDateTime.now());
         }
 
-        // 4. Save entity
+        leaveRequest.setStatus(newStatus);
+
+        // 5. Save entity
         leaveRequestRepository.save(leaveRequest);
     }
 
@@ -145,5 +150,24 @@ public class LeaveRequestService {
                 entity.getApprovedAt()
         );
     }
+
+    //getAllRequests
+    @Transactional(readOnly = true)
+    public PagedResponse<LeaveRequestResponse> getAllRequests(Pageable pageable) {
+        Page<LeaveRequestEntity> page = leaveRequestRepository.findAll(pageable);
+        List<LeaveRequestResponse> content = page.getContent()
+                .stream()
+                .map(this::mapToResponse)
+                .collect(Collectors.toList());
+        return PagedResponse.of(page, content);}
+
+
+    //Get Leave Enum Status 
+    @Transactional(readOnly = true)
+    public List<String> getAllLeaveStatuses() {
+        return List.of(LeaveStatus.values())
+                .stream()
+                .map(Enum::name)
+                .collect(Collectors.toList());}
 }
 

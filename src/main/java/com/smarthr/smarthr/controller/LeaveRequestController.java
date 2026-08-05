@@ -21,10 +21,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.smarthr.smarthr.enumeration.LeaveStatus;
 import com.smarthr.smarthr.request.CreateLeaveRequest;
 import com.smarthr.smarthr.response.LeaveRequestResponse;
 import com.smarthr.smarthr.response.PagedResponse;
 import com.smarthr.smarthr.service.LeaveRequestService;
+
+import jakarta.validation.Valid;
 
 /**
  *
@@ -61,10 +64,33 @@ public class LeaveRequestController {
 
     // 3. ONLY ADMINs can approve or reject leave requests
     @PutMapping("/{id}/status")
-    @PreAuthorize("hasAuthority('ADMIN')")
-    public ResponseEntity<Void> updateStatus(@PathVariable Long id, @RequestParam String status) {
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'LINE_MANAGER')")
+    public ResponseEntity<Void> updateStatus(
+            @PathVariable Long id, 
+            @RequestBody LeaveStatus status) {
+        
         leaveRequestService.updateStatus(id, status);
         return ResponseEntity.ok().build();
     }
 
+    // 4. Admins can view all leave requests with pagination
+    @GetMapping
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public ResponseEntity<PagedResponse<LeaveRequestResponse>> getAllRequests(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "id") String sortBy,
+            @RequestParam(defaultValue = "desc") String sortDir) {
+        Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+        Pageable pageable = PageRequest.of(page, size, sort);
+        return ResponseEntity.ok(leaveRequestService.getAllRequests(pageable)); }
+
+
+    // 5. Get all leave statuses
+    @GetMapping("/statuses")
+    @PreAuthorize("hasAnyAuthority('USER', 'ADMIN', 'LINE_MANAGER')")
+    public ResponseEntity<List<String>> getAllLeaveStatuses() {
+        List<String> statuses = leaveRequestService.getAllLeaveStatuses();
+        return ResponseEntity.ok(statuses); 
+    }
 }
