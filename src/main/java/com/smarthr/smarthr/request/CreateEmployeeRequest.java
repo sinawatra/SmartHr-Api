@@ -1,6 +1,7 @@
 package com.smarthr.smarthr.request;
 
 import java.time.LocalDate;
+import java.util.List;
 
 
 import lombok.AllArgsConstructor;
@@ -29,4 +30,5 @@ public class CreateEmployeeRequest {
     private LocalDate probationEndDate;
     private String profileImage;
     private LocalDate endDate;
+    private List<String> onboardingTasks;
 }

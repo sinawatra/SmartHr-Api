@@ -1,5 +1,6 @@
 package com.smarthr.smarthr.service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -8,12 +9,16 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.smarthr.smarthr.entity.DefaultOnboardingTaskEntity;
 import com.smarthr.smarthr.entity.EmployeeDetails;
+import com.smarthr.smarthr.entity.OnboardingTaskEntity;
 import com.smarthr.smarthr.entity.RoleEntity;
 import com.smarthr.smarthr.exception.InvalidCredentialsException;
 import com.smarthr.smarthr.exception.ResourceNotFoundException;
 import com.smarthr.smarthr.exception.UserAlreadyExistsException;
+import com.smarthr.smarthr.repository.DefaultOnboardingTaskRepository;
 import com.smarthr.smarthr.repository.EmployeeRepository;
+import com.smarthr.smarthr.repository.OnboardingTaskRepository;
 import com.smarthr.smarthr.repository.RoleRepository;
 import com.smarthr.smarthr.request.CreateEmployeeRequest;
 import com.smarthr.smarthr.request.LoginRequest;
@@ -32,6 +37,8 @@ public class EmployeeService {
     private final PasswordEncoder passwordEncoder;
     private final RoleRepository roleRepository;
     private final JwtTokenProvider tokenProvider;
+    private final OnboardingTaskRepository onboardingTaskRepository;
+    private final DefaultOnboardingTaskRepository defaultOnboardingTaskRepository;
 
     /**
      * Authenticate user/admin by username and password.
@@ -114,7 +121,38 @@ public class EmployeeService {
                 .build();
 
         EmployeeDetails savedEmployee = employeeRepository.save(employee);
-        return EmployeeResponse.fromEntity(savedEmployee);
+
+        List<String> tasksToAssign = request.getOnboardingTasks();
+        if ((tasksToAssign == null || tasksToAssign.isEmpty()) && defaultOnboardingTaskRepository != null) {
+            List<DefaultOnboardingTaskEntity> defaultTasks = defaultOnboardingTaskRepository.findByActiveTrue();
+            if (defaultTasks != null && !defaultTasks.isEmpty()) {
+                tasksToAssign = defaultTasks.stream()
+                        .map(DefaultOnboardingTaskEntity::getTaskName)
+                        .collect(Collectors.toList());
+            }
+        }
+
+        List<String> assignedTaskNames = null;
+        if (tasksToAssign != null && !tasksToAssign.isEmpty() && onboardingTaskRepository != null) {
+            assignedTaskNames = new ArrayList<>();
+            List<OnboardingTaskEntity> taskEntities = new ArrayList<>();
+            for (String taskName : tasksToAssign) {
+                if (taskName != null && !taskName.isBlank()) {
+                    OnboardingTaskEntity taskEntity = OnboardingTaskEntity.builder()
+                            .employee(savedEmployee)
+                            .taskName(taskName)
+                            .completed(false)
+                            .build();
+                    taskEntities.add(taskEntity);
+                    assignedTaskNames.add(taskName);
+                }
+            }
+            if (!taskEntities.isEmpty()) {
+                onboardingTaskRepository.saveAll(taskEntities);
+            }
+        }
+
+        return EmployeeResponse.fromEntity(savedEmployee, assignedTaskNames);
     }
 
     /**

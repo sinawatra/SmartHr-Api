@@ -46,6 +46,12 @@ class EmployeeServiceTest {
     @Mock
     private com.smarthr.smarthr.security.JwtTokenProvider tokenProvider;
 
+    @Mock
+    private com.smarthr.smarthr.repository.OnboardingTaskRepository onboardingTaskRepository;
+
+    @Mock
+    private com.smarthr.smarthr.repository.DefaultOnboardingTaskRepository defaultOnboardingTaskRepository;
+
     @InjectMocks
     private EmployeeService employeeService;
 
@@ -161,6 +167,88 @@ class EmployeeServiceTest {
         assertNotNull(response);
         assertEquals("new_employee", response.getUsername());
         assertEquals("Jane", response.getFirstName());
+    }
+
+    @Test
+    void testAdminCreateEmployeeWithOnboardingTasksSuccess() {
+        CreateEmployeeRequest request = CreateEmployeeRequest.builder()
+                .username("onboarded_emp")
+                .password("emp123")
+                .roleId(2)
+                .firstName("Bob")
+                .lastName("Builder")
+                .email("bob@smarthr.com")
+                .onboardingTasks(List.of("Setup Workstation", "Complete Security Training"))
+                .build();
+
+        EmployeeDetails savedEmployee = EmployeeDetails.builder()
+                .id(4L)
+                .username("onboarded_emp")
+                .password("encoded_emp123")
+                .role(userRoleEntity)
+                .firstName("Bob")
+                .lastName("Builder")
+                .email("bob@smarthr.com")
+                .build();
+
+        when(roleRepository.findById(2)).thenReturn(Optional.of(userRoleEntity));
+        when(employeeRepository.existsByUsername("onboarded_emp")).thenReturn(false);
+        when(employeeRepository.existsByEmail("bob@smarthr.com")).thenReturn(false);
+        when(passwordEncoder.encode("emp123")).thenReturn("encoded_emp123");
+        when(employeeRepository.save(any(EmployeeDetails.class))).thenReturn(savedEmployee);
+
+        EmployeeResponse response = employeeService.createEmployee(request);
+
+        assertNotNull(response);
+        assertEquals("onboarded_emp", response.getUsername());
+        assertNotNull(response.getOnboardingTasks());
+        assertEquals(2, response.getOnboardingTasks().size());
+        assertTrue(response.getOnboardingTasks().contains("Setup Workstation"));
+        verify(onboardingTaskRepository, times(1)).saveAll(any());
+    }
+
+    @Test
+    void testAdminCreateEmployeeWithDefaultOnboardingTasksFromDbSuccess() {
+        CreateEmployeeRequest request = CreateEmployeeRequest.builder()
+                .username("default_onboard_emp")
+                .password("emp123")
+                .roleId(2)
+                .firstName("Alice")
+                .lastName("Wonder")
+                .email("alice@smarthr.com")
+                .build();
+
+        EmployeeDetails savedEmployee = EmployeeDetails.builder()
+                .id(5L)
+                .username("default_onboard_emp")
+                .password("encoded_emp123")
+                .role(userRoleEntity)
+                .firstName("Alice")
+                .lastName("Wonder")
+                .email("alice@smarthr.com")
+                .build();
+
+        com.smarthr.smarthr.entity.DefaultOnboardingTaskEntity defaultTask1 = 
+                com.smarthr.smarthr.entity.DefaultOnboardingTaskEntity.builder().id(1).taskName("Default Task 1").active(true).build();
+        com.smarthr.smarthr.entity.DefaultOnboardingTaskEntity defaultTask2 = 
+                com.smarthr.smarthr.entity.DefaultOnboardingTaskEntity.builder().id(2).taskName("Default Task 2").active(true).build();
+
+        when(roleRepository.findById(2)).thenReturn(Optional.of(userRoleEntity));
+        when(employeeRepository.existsByUsername("default_onboard_emp")).thenReturn(false);
+        when(employeeRepository.existsByEmail("alice@smarthr.com")).thenReturn(false);
+        when(passwordEncoder.encode("emp123")).thenReturn("encoded_emp123");
+        when(employeeRepository.save(any(EmployeeDetails.class))).thenReturn(savedEmployee);
+        when(defaultOnboardingTaskRepository.findByActiveTrue()).thenReturn(List.of(defaultTask1, defaultTask2));
+
+        EmployeeResponse response = employeeService.createEmployee(request);
+
+        assertNotNull(response);
+        assertEquals("default_onboard_emp", response.getUsername());
+        assertNotNull(response.getOnboardingTasks());
+        assertEquals(2, response.getOnboardingTasks().size());
+        assertTrue(response.getOnboardingTasks().contains("Default Task 1"));
+        assertTrue(response.getOnboardingTasks().contains("Default Task 2"));
+        verify(onboardingTaskRepository, times(1)).saveAll(any());
     }
 
     @Test

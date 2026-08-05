@@ -24,6 +24,6 @@ public class RoleRequest {
         if (name != null && !name.isBlank()) {
             return name.toUpperCase();
         }
-        return roleName.toUpperCase();
+        return roleName != null ? roleName.toUpperCase() : null;
     }
 }

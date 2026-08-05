@@ -5,6 +5,7 @@ import java.time.LocalDate;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -54,7 +55,6 @@ public class EmployeeDetails {
     private String firstName;
     private String lastName; 
     
-    @Column(unique = true)
     private String email;
     
     @Column(name = "phone")

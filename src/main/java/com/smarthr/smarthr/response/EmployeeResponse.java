@@ -2,6 +2,7 @@ package com.smarthr.smarthr.response;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.List;
 
 import com.smarthr.smarthr.entity.EmployeeDetails;
 
@@ -31,10 +32,15 @@ public class EmployeeResponse {
     private LocalDate probationEndDate;
     private String profileImage;
     private LocalDate endDate;
+    private List<String> onboardingTasks;
     private Instant createdAt;
     private Instant updatedAt;
 
     public static EmployeeResponse fromEntity(EmployeeDetails employee) {
+        return fromEntity(employee, null);
+    }
+
+    public static EmployeeResponse fromEntity(EmployeeDetails employee, List<String> onboardingTasks) {
         return EmployeeResponse.builder()
                 .id(employee.getId())
                 .username(employee.getUsername())
@@ -52,6 +58,7 @@ public class EmployeeResponse {
                 .probationEndDate(employee.getProbationEndDate())
                 .profileImage(employee.getProfileImage())
                 .endDate(employee.getEndDate())
+                .onboardingTasks(onboardingTasks)
                 .createdAt(employee.getCreatedAt())
                 .updatedAt(employee.getUpdatedAt())
                 .build();

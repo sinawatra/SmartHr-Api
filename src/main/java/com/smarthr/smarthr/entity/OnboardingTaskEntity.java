@@ -9,26 +9,52 @@ package com.smarthr.smarthr.entity;
  *
  * @author sinawatrarith
  */
-import jakarta.persistence.*;
 import java.time.LocalDateTime;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
+import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Table(name = "onboarding_tasks")
+@Data
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class OnboardingTaskEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    // Foreign key pointing to the main Onboarding workflow entity
+
+    // Foreign key pointing to the employee undergoing onboarding
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "onboarding_id", referencedColumnName = "id", nullable = false)
-    private OnboardingEntity onboarding;
+    @JoinColumn(name = "employee_id", referencedColumnName = "id", nullable = false)
+    private EmployeeDetails employee;
 
     @Column(name = "task_name", nullable = false)
     private String taskName;
+    
 
     @Column(name = "completed", nullable = false)
+    @Builder.Default
     private boolean completed = false;
 
     @Column(name = "completed_at")
