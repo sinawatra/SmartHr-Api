@@ -44,6 +44,9 @@ class EmployeeServiceTest {
     private RoleRepository roleRepository;
 
     @Mock
+    private com.smarthr.smarthr.repository.DepartmentRepository departmentRepository;
+
+    @Mock
     private com.smarthr.smarthr.security.JwtTokenProvider tokenProvider;
 
     @Mock

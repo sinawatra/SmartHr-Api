@@ -10,6 +10,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.smarthr.smarthr.entity.DefaultOnboardingTaskEntity;
+import com.smarthr.smarthr.entity.DepartmentEntity;
 import com.smarthr.smarthr.entity.EmployeeDetails;
 import com.smarthr.smarthr.entity.OnboardingTaskEntity;
 import com.smarthr.smarthr.entity.RoleEntity;
@@ -17,6 +18,7 @@ import com.smarthr.smarthr.exception.InvalidCredentialsException;
 import com.smarthr.smarthr.exception.ResourceNotFoundException;
 import com.smarthr.smarthr.exception.UserAlreadyExistsException;
 import com.smarthr.smarthr.repository.DefaultOnboardingTaskRepository;
+import com.smarthr.smarthr.repository.DepartmentRepository;
 import com.smarthr.smarthr.repository.EmployeeRepository;
 import com.smarthr.smarthr.repository.OnboardingTaskRepository;
 import com.smarthr.smarthr.repository.RoleRepository;
@@ -36,6 +38,7 @@ public class EmployeeService {
     private final EmployeeRepository employeeRepository;
     private final PasswordEncoder passwordEncoder;
     private final RoleRepository roleRepository;
+    private final DepartmentRepository departmentRepository;
     private final JwtTokenProvider tokenProvider;
     private final OnboardingTaskRepository onboardingTaskRepository;
     private final DefaultOnboardingTaskRepository defaultOnboardingTaskRepository;
@@ -80,6 +83,16 @@ public class EmployeeService {
         return null;
     }
 
+    private DepartmentEntity resolveDepartment(CreateEmployeeRequest request) {
+        if (request == null || departmentRepository == null) {
+            return null;
+        }
+        if (request.getDepartmentId() != null) {
+            return departmentRepository.findById(request.getDepartmentId().longValue()).orElse(null);
+        }
+        return null;
+    }
+
     /**
      * Admin method to create a new employee with username, password, and assigned role.
      */
@@ -100,13 +113,14 @@ public class EmployeeService {
         }
 
         RoleEntity assignedRole = resolveRole(request);
+        DepartmentEntity assignedDepartment = resolveDepartment(request);
 
         EmployeeDetails employee = EmployeeDetails.builder()
                 .username(request.getUsername())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .role(assignedRole)
                 .companyId(request.getCompanyId())
-                .departmentId(request.getDepartmentId())
+                .department(assignedDepartment)
                 .managerId(request.getManagerId())
                 .employeeCode(request.getEmployeeCode())
                 .firstName(request.getFirstName())
@@ -217,6 +231,11 @@ public class EmployeeService {
             employee.setRole(newRole);
         }
 
+        DepartmentEntity newDept = resolveDepartment(request);
+        if (newDept != null) {
+            employee.setDepartment(newDept);
+        }
+
         if (request.getFirstName() != null) employee.setFirstName(request.getFirstName());
         if (request.getLastName() != null) employee.setLastName(request.getLastName());
         if (request.getEmail() != null) employee.setEmail(request.getEmail());
@@ -224,7 +243,6 @@ public class EmployeeService {
         if (request.getEmployeeCode() != null) employee.setEmployeeCode(request.getEmployeeCode());
         if (request.getEmployeeStatus() != null) employee.setEmployeeStatus(request.getEmployeeStatus());
         if (request.getCompanyId() != null) employee.setCompanyId(request.getCompanyId());
-        if (request.getDepartmentId() != null) employee.setDepartmentId(request.getDepartmentId());
         if (request.getManagerId() != null) employee.setManagerId(request.getManagerId());
         if (request.getHiredate() != null) employee.setHiredate(request.getHiredate());
         if (request.getProbationEndDate() != null) employee.setProbationEndDate(request.getProbationEndDate());
