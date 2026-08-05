@@ -18,7 +18,9 @@ import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 /**
  * Entity representing employee details including authentication credentials.
@@ -29,6 +31,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Getter 
+@Setter
 public class EmployeeDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -51,14 +55,6 @@ public class EmployeeDetails {
     private DepartmentEntity department;
 
     private Integer managerId;
-
-    public Integer getRoleId() {
-        return role != null ? role.getId() : null;
-    }
-
-    public Integer getDepartmentId() {
-        return department != null && department.getId() != null ? department.getId().intValue() : null;
-    }
     private String employeeCode;
     private String firstName;
     private String lastName; 
