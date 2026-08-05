@@ -26,7 +26,7 @@ import lombok.RequiredArgsConstructor;
  * REST controller for managing default onboarding task templates.
  */
 @RestController
-@RequestMapping({"/api/v1/default-onboarding-tasks", "/api/v1/default-onboarding-tasks/", "/api/default-onboarding-tasks"})
+@RequestMapping({"/api/v1/default-onboarding-tasks", "/api/v1/default-onboarding-tasks/"})
 @RequiredArgsConstructor
 public class DefaultOnboardingTaskController {
 
