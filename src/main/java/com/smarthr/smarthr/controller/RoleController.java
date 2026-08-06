@@ -5,11 +5,13 @@ import java.util.List;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -39,13 +41,13 @@ public class RoleController {
     /**
      * Create a new role.
      */
-    // @PostMapping
-    // @PreAuthorize("hasAnyAuthority('ADMIN', 'ROLE_ADMIN')")
-    // public ResponseEntity<ApiResponse<RoleResponse>> createRole(@RequestBody RoleRequest request) {
-    //     RoleResponse response = roleService.createRole(request);
-    //     return ResponseEntity.status(HttpStatus.CREATED)
-    //             .body(ApiResponse.success("Role created successfully", response));
-    // }
+    @PostMapping
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'ROLE_ADMIN')")
+    public ResponseEntity<ApiResponse<RoleResponse>> createRole(@RequestBody RoleRequest request) {
+        RoleResponse response = roleService.createRole(request);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ApiResponse.success("Role created successfully", response));
+    }
 
     /**
      * Get all roles (supports both paginated and unpaginated requests).

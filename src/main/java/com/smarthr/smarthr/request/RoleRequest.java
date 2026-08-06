@@ -3,7 +3,9 @@ package com.smarthr.smarthr.request;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 /**
  * Request payload for creating or updating a Role.
@@ -15,15 +17,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Getter 
+@Setter
 public class RoleRequest {
-
     private String name;
-    private String roleName;
 
-    public String getName() {
-        if (name != null && !name.isBlank()) {
-            return name.toUpperCase();
-        }
-        return roleName != null ? roleName.toUpperCase() : null;
-    }
 }

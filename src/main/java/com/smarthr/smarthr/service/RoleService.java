@@ -7,7 +7,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import com.smarthr.smarthr.entity.RoleEntity;
 import com.smarthr.smarthr.exception.ResourceNotFoundException;
 import com.smarthr.smarthr.exception.UserAlreadyExistsException;
