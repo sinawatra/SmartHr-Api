@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
+import com.smarthr.smarthr.response.ApiResponse;
 import com.smarthr.smarthr.enumeration.LeaveStatus;
 import com.smarthr.smarthr.request.CreateLeaveRequest;
 import com.smarthr.smarthr.response.LeaveRequestResponse;
@@ -89,8 +89,8 @@ public class LeaveRequestController {
     // 5. Get all leave statuses
     @GetMapping("/statuses")
     @PreAuthorize("hasAnyAuthority('USER', 'ADMIN', 'LINE_MANAGER')")
-    public ResponseEntity<List<String>> getAllLeaveStatuses() {
+    public ResponseEntity<ApiResponse<List<String>>> getAllLeaveStatuses() {
         List<String> statuses = leaveRequestService.getAllLeaveStatuses();
-        return ResponseEntity.ok(statuses); 
+        return ResponseEntity.ok(ApiResponse.success(statuses)); 
     }
 }
