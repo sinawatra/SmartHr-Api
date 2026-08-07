@@ -19,6 +19,10 @@ public class AnnouncementResponse {
     private String description;
     private Long createdById;
     private String createdByName;
+    private Long companyId;
+    private String companyName;
+    private Long departmentId;
+    private String departmentName;
     private Instant createdAt;
     private Instant updatedAt;
 
@@ -43,6 +47,10 @@ public class AnnouncementResponse {
                 .description(entity.getDescription())
                 .createdById(entity.getCreatedBy() != null ? entity.getCreatedBy().getId() : null)
                 .createdByName(creatorName)
+                .companyId(entity.getCompany() != null ? entity.getCompany().getId() : null)
+                .companyName(entity.getCompany() != null ? entity.getCompany().getName() : null)
+                .departmentId(entity.getDepartment() != null ? entity.getDepartment().getId() : null)
+                .departmentName(entity.getDepartment() != null ? entity.getDepartment().getName() : null)
                 .createdAt(entity.getCreatedAt())
                 .updatedAt(entity.getUpdatedAt())
                 .build();

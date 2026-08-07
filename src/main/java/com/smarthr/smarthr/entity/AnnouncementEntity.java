@@ -46,6 +46,15 @@ public class AnnouncementEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "created_by", nullable = false)
     private EmployeeDetails createdBy;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "company_id")
+    private CompanyEntity company;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "department_id")
+    private DepartmentEntity department;
+
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private Instant createdAt;
@@ -53,6 +62,4 @@ public class AnnouncementEntity {
     @UpdateTimestamp
     @Column(name = "updated_at")
     private Instant updatedAt;
-    
-
 }

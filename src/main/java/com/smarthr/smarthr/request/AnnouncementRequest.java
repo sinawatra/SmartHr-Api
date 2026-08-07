@@ -12,4 +12,6 @@ import lombok.NoArgsConstructor;
 public class AnnouncementRequest {
     private String title;
     private String description;
+    private Long companyId;
+    private Long departmentId;
 }
