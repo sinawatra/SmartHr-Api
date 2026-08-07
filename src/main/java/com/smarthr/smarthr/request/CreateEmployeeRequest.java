@@ -3,6 +3,7 @@ package com.smarthr.smarthr.request;
 import java.time.LocalDate;
 import java.util.List;
 
+import com.smarthr.smarthr.enumeration.EmployementStatus;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -25,7 +26,7 @@ public class CreateEmployeeRequest {
     private String lastName;
     private String email;
     private String phoneNumber;
-    private String employeeStatus;
+    private EmployementStatus employeeStatus;
     private LocalDate hiredate;
     private LocalDate probationEndDate;
     private String profileImage;

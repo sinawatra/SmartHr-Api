@@ -1,9 +1,7 @@
 package com.smarthr.smarthr.response;
 
 import java.util.List;
-
 import org.springframework.data.domain.Page;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

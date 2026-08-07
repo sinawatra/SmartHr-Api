@@ -6,8 +6,12 @@ import java.time.LocalDate;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import com.smarthr.smarthr.enumeration.EmployementStatus;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -51,7 +55,7 @@ public class EmployeeDetails {
     private Integer companyId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "department_id", referencedColumnName = "id")
+    @JoinColumn(name = "department_id")
     private DepartmentEntity department;
 
     private Integer managerId;
@@ -64,8 +68,10 @@ public class EmployeeDetails {
     @Column(name = "phone")
     private String phoneNumber;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "employment_status")
-    private String employeeStatus;
+    @Builder.Default
+    private EmployementStatus employeeStatus = EmployementStatus.Probation;
 
     @Column(name = "hire_date")
     private LocalDate hiredate;

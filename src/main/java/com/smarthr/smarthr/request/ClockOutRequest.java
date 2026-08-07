@@ -1,5 +1,7 @@
 package com.smarthr.smarthr.request;
 
+import org.springframework.web.multipart.MultipartFile;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,5 +14,5 @@ import lombok.NoArgsConstructor;
 public class ClockOutRequest {
     private Long employeeId;
     private String notes;
-    private String imageFile;
+    private MultipartFile imageFile;
 }

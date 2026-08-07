@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 import com.smarthr.smarthr.entity.EmployeeDetails;
+import com.smarthr.smarthr.enumeration.EmployementStatus;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -27,7 +28,7 @@ public class EmployeeResponse {
     private String lastName;
     private String email;
     private String phoneNumber;
-    private String employeeStatus;
+    private EmployementStatus employeeStatus;
     private LocalDate hiredate;
     private LocalDate probationEndDate;
     private String profileImage;
@@ -55,7 +56,7 @@ public class EmployeeResponse {
                 .phoneNumber(employee.getPhoneNumber())
                 .employeeStatus(employee.getEmployeeStatus())
                 .hiredate(employee.getHiredate())
-                .probationEndDate(employee.getProbationEndDate())
+            .probationEndDate(employee.getProbationEndDate())
                 .profileImage(employee.getProfileImage())
                 .endDate(employee.getEndDate())
                 .onboardingTasks(onboardingTasks)

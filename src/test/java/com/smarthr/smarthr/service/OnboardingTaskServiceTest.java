@@ -15,6 +15,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.smarthr.smarthr.entity.EmployeeDetails;
 import com.smarthr.smarthr.entity.OnboardingTaskEntity;
+import com.smarthr.smarthr.enumeration.EmployementStatus;
+import com.smarthr.smarthr.repository.EmployeeRepository;
 import com.smarthr.smarthr.repository.OnboardingTaskRepository;
 import com.smarthr.smarthr.response.OnboardingTaskResponse;
 
@@ -23,6 +25,9 @@ class OnboardingTaskServiceTest {
 
     @Mock
     private OnboardingTaskRepository onboardingTaskRepository;
+
+    @Mock
+    private EmployeeRepository employeeRepository;
 
     @InjectMocks
     private OnboardingTaskService onboardingTaskService;
@@ -44,18 +49,42 @@ class OnboardingTaskServiceTest {
     }
 
     @Test
-    void testUpdateTaskCompletion_TickTask() {
-        EmployeeDetails employee = EmployeeDetails.builder().id(10L).username("testuser").build();
-        OnboardingTaskEntity task = OnboardingTaskEntity.builder().id(1).employee(employee).taskName("Birth Certificate").completed(false).build();
+    void testUpdateTaskCompletion_TickTask_NotAllCompleted() {
+        EmployeeDetails employee = EmployeeDetails.builder().id(10L).username("testuser").employeeStatus(EmployementStatus.Probation).build();
+        OnboardingTaskEntity task1 = OnboardingTaskEntity.builder().id(1).employee(employee).taskName("Birth Certificate").completed(false).build();
+        OnboardingTaskEntity task2 = OnboardingTaskEntity.builder().id(2).employee(employee).taskName("Employment Certificate").completed(false).build();
 
-        when(onboardingTaskRepository.findById(1)).thenReturn(Optional.of(task));
+        when(onboardingTaskRepository.findById(1)).thenReturn(Optional.of(task1));
         when(onboardingTaskRepository.save(any(OnboardingTaskEntity.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(onboardingTaskRepository.findByEmployeeId(10L)).thenReturn(List.of(task1, task2));
 
         OnboardingTaskResponse response = onboardingTaskService.updateTaskCompletion(1, true);
 
         assertNotNull(response);
         assertTrue(response.isCompleted());
-        assertNotNull(response.getCompletedAt());
-        verify(onboardingTaskRepository, times(1)).save(task);
+        assertEquals(EmployementStatus.Probation, employee.getEmployeeStatus());
+        verify(employeeRepository, never()).save(any());
+    }
+
+    @Test
+    void testUpdateTaskCompletion_AllCompleted_AutoChangesToFullStaff() {
+        EmployeeDetails employee = EmployeeDetails.builder().id(10L).username("testuser").employeeStatus(EmployementStatus.Probation).build();
+        OnboardingTaskEntity task1 = OnboardingTaskEntity.builder().id(1).employee(employee).taskName("Birth Certificate").completed(false).build();
+
+        when(onboardingTaskRepository.findById(1)).thenReturn(Optional.of(task1));
+        when(onboardingTaskRepository.save(any(OnboardingTaskEntity.class))).thenAnswer(invocation -> {
+            OnboardingTaskEntity t = invocation.getArgument(0);
+            t.setCompleted(true);
+            return t;
+        });
+        when(onboardingTaskRepository.findByEmployeeId(10L)).thenReturn(List.of(task1));
+        when(employeeRepository.findById(10L)).thenReturn(Optional.of(employee));
+
+        OnboardingTaskResponse response = onboardingTaskService.updateTaskCompletion(1, true);
+
+        assertNotNull(response);
+        assertTrue(response.isCompleted());
+        assertEquals(EmployementStatus.FullStaff, employee.getEmployeeStatus());
+        verify(employeeRepository, times(1)).save(employee);
     }
 }

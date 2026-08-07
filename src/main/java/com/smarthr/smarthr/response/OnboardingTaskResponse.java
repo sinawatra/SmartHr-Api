@@ -13,7 +13,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class OnboardingTaskResponse {
+public class 
+OnboardingTaskResponse {
     private Integer id;
     private Long employeeId;
     private String taskName;

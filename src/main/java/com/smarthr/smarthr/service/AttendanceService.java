@@ -56,10 +56,7 @@ public class AttendanceService {
         attendance.setEmployee(employee);
         attendance.setClockIn(LocalDateTime.now());
         attendance.setStatus("PRESENT");
-        
-        if (request.getNotes() != null) {
-            attendance.setNotes(request.getNotes());
-        }
+        if (request.getNotes() != null) attendance.setNotes(request.getNotes());
 
         AttendanceEntity saved = attendanceRepository.save(attendance);
         return mapToResponse(saved);

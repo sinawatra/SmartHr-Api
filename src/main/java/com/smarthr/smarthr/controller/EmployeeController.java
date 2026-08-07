@@ -83,4 +83,11 @@ public class EmployeeController {
         employeeService.deleteEmployee(id);
         return ResponseEntity.ok(ApiResponse.success("Employee deleted successfully", null));
     }
+
+
+    //Get all Employment Status
+    @GetMapping("/employment-statuses")
+    public ResponseEntity<ApiResponse<String[]>> getAllEmploymentStatuses() {
+        String[] statuses = employeeService.getAllEmploymentStatuses();
+        return ResponseEntity.ok(ApiResponse.success(statuses));}
 }

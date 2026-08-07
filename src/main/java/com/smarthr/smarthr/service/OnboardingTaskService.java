@@ -5,9 +5,13 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import com.smarthr.smarthr.entity.EmployeeDetails;
 import com.smarthr.smarthr.entity.OnboardingTaskEntity;
+import com.smarthr.smarthr.enumeration.EmployementStatus;
 import com.smarthr.smarthr.exception.ResourceNotFoundException;
+import com.smarthr.smarthr.repository.EmployeeRepository;
 import com.smarthr.smarthr.repository.OnboardingTaskRepository;
 import com.smarthr.smarthr.response.OnboardingTaskResponse;
 
@@ -15,9 +19,11 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class OnboardingTaskService {
 
     private final OnboardingTaskRepository onboardingTaskRepository;
+    private final EmployeeRepository employeeRepository;
 
     /**
      * Get all onboarding tasks assigned to a specific employee.
@@ -30,6 +36,7 @@ public class OnboardingTaskService {
 
     /**
      * Complete or update completion status ("tick") of an employee's onboarding task.
+     * Auto changes employee status to FullStaff if all onboarding tasks are completed.
      */
     public OnboardingTaskResponse updateTaskCompletion(Integer taskId, boolean completed) {
         OnboardingTaskEntity task = onboardingTaskRepository.findById(taskId)
@@ -39,6 +46,21 @@ public class OnboardingTaskService {
         task.setCompletedAt(completed ? LocalDateTime.now() : null);
 
         OnboardingTaskEntity updated = onboardingTaskRepository.save(task);
+
+        if (task.getEmployee() != null && task.getEmployee().getId() != null) {
+            Long employeeId = task.getEmployee().getId();
+            List<OnboardingTaskEntity> allTasks = onboardingTaskRepository.findByEmployeeId(employeeId);
+            boolean allCompleted = !allTasks.isEmpty() && allTasks.stream().allMatch(OnboardingTaskEntity::isCompleted);
+
+            if (allCompleted) {
+                EmployeeDetails employee = employeeRepository.findById(employeeId).orElse(task.getEmployee());
+                if (employee.getEmployeeStatus() == null || employee.getEmployeeStatus() == EmployementStatus.Probation) {
+                    employee.setEmployeeStatus(EmployementStatus.FullStaff);
+                    employeeRepository.save(employee);
+                }
+            }
+        }
+
         return OnboardingTaskResponse.fromEntity(updated);
     }
 }

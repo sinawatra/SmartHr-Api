@@ -1,6 +1,7 @@
 package com.smarthr.smarthr.service;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -8,12 +9,14 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.smarthr.smarthr.entity.DefaultOnboardingTaskEntity;
 import com.smarthr.smarthr.entity.DepartmentEntity;
 import com.smarthr.smarthr.entity.EmployeeDetails;
 import com.smarthr.smarthr.entity.OnboardingTaskEntity;
 import com.smarthr.smarthr.entity.RoleEntity;
+import com.smarthr.smarthr.enumeration.EmployementStatus;
 import com.smarthr.smarthr.exception.InvalidCredentialsException;
 import com.smarthr.smarthr.exception.ResourceNotFoundException;
 import com.smarthr.smarthr.exception.UserAlreadyExistsException;
@@ -29,10 +32,12 @@ import com.smarthr.smarthr.response.LoginResponse;
 import com.smarthr.smarthr.response.PagedResponse;
 import com.smarthr.smarthr.security.JwtTokenProvider;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class EmployeeService {
 
     private final EmployeeRepository employeeRepository;
@@ -84,13 +89,27 @@ public class EmployeeService {
     }
 
     private DepartmentEntity resolveDepartment(CreateEmployeeRequest request) {
-        if (request == null || departmentRepository == null) {
+        if (request == null || request.getDepartmentId() == null || departmentRepository == null) {
             return null;
         }
-        if (request.getDepartmentId() != null) {
-            return departmentRepository.findById(request.getDepartmentId().longValue()).orElse(null);
+
+        return departmentRepository.findById(request.getDepartmentId().longValue())
+                .orElseThrow(() -> new EntityNotFoundException(
+                    "Department not found with ID: " + request.getDepartmentId()
+                ));
+    }
+
+    private List<String> getOnboardingTaskNames(Long employeeId) {
+        if (onboardingTaskRepository == null || employeeId == null) {
+            return null;
         }
-        return null;
+        List<OnboardingTaskEntity> tasks = onboardingTaskRepository.findByEmployeeId(employeeId);
+        if (tasks == null || tasks.isEmpty()) {
+            return null;
+        }
+        return tasks.stream()
+                .map(OnboardingTaskEntity::getTaskName)
+                .collect(Collectors.toList());
     }
 
     /**
@@ -127,7 +146,7 @@ public class EmployeeService {
                 .lastName(request.getLastName())
                 .email(request.getEmail())
                 .phoneNumber(request.getPhoneNumber())
-                .employeeStatus(request.getEmployeeStatus())
+                .employeeStatus(request.getEmployeeStatus() != null ? request.getEmployeeStatus() : EmployementStatus.Probation)
                 .hiredate(request.getHiredate())
                 .probationEndDate(request.getProbationEndDate())
                 .profileImage(request.getProfileImage())
@@ -174,7 +193,7 @@ public class EmployeeService {
      */
     public List<EmployeeResponse> getAllEmployees() {
         return employeeRepository.findAll().stream()
-                .map(EmployeeResponse::fromEntity)
+                .map(emp -> EmployeeResponse.fromEntity(emp, getOnboardingTaskNames(emp.getId())))
                 .collect(Collectors.toList());
     }
 
@@ -184,7 +203,7 @@ public class EmployeeService {
     public PagedResponse<EmployeeResponse> getAllEmployees(Pageable pageable) {
         Page<EmployeeDetails> page = employeeRepository.findAll(pageable);
         List<EmployeeResponse> content = page.getContent().stream()
-                .map(EmployeeResponse::fromEntity)
+                .map(emp -> EmployeeResponse.fromEntity(emp, getOnboardingTaskNames(emp.getId())))
                 .collect(Collectors.toList());
         return PagedResponse.of(page, content);
     }
@@ -195,7 +214,7 @@ public class EmployeeService {
     public EmployeeResponse getEmployeeById(Long id) {
         EmployeeDetails employee = employeeRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Employee not found with id: " + id));
-        return EmployeeResponse.fromEntity(employee);
+        return EmployeeResponse.fromEntity(employee, getOnboardingTaskNames(employee.getId()));
     }
 
     /**
@@ -204,7 +223,7 @@ public class EmployeeService {
     public EmployeeResponse getEmployeeByUsername(String username) {
         EmployeeDetails employee = employeeRepository.findByUsername(username)
                 .orElseThrow(() -> new ResourceNotFoundException("Employee not found with username: " + username));
-        return EmployeeResponse.fromEntity(employee);
+        return EmployeeResponse.fromEntity(employee, getOnboardingTaskNames(employee.getId()));
     }
 
     /**
@@ -250,7 +269,7 @@ public class EmployeeService {
         if (request.getEndDate() != null) employee.setEndDate(request.getEndDate());
 
         EmployeeDetails updated = employeeRepository.save(employee);
-        return EmployeeResponse.fromEntity(updated);
+        return EmployeeResponse.fromEntity(updated, getOnboardingTaskNames(updated.getId()));
     }
 
     /**
@@ -261,5 +280,11 @@ public class EmployeeService {
             throw new ResourceNotFoundException("Employee not found with id: " + id);
         }
         employeeRepository.deleteById(id);
+    }
+
+    //Get Employement status 
+    public String[] getAllEmploymentStatuses() {
+        EmployementStatus[] statuses = EmployementStatus.values();
+        return Arrays.stream(statuses).map(EmployementStatus::name).toArray(String[]::new);
     }
 }
