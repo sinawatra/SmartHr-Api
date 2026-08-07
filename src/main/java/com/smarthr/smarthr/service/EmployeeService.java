@@ -98,7 +98,19 @@ public class EmployeeService {
                     "Department not found with ID: " + request.getDepartmentId()
                 ));
     }
+    
+    private DepartmentEntity resolveDepartment(CreateEmployeeRequest request) {
+        if (request == null || request.getDepartmentId() == null) {
+            throw new IllegalArgumentException("Department ID is required");
+        }
 
+        // Ensure the department actually exists in the database
+        return departmentRepository.findById(request.getDepartmentId().longValue())
+                .orElseThrow(() -> new EntityNotFoundException(
+                    "Department not found with ID: " + request.getDepartmentId()
+                ));
+    }
+    
     private List<String> getOnboardingTaskNames(Long employeeId) {
         if (onboardingTaskRepository == null || employeeId == null) {
             return null;
