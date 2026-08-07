@@ -1,6 +1,7 @@
 package com.smarthr.smarthr.controller;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -39,5 +40,14 @@ public class AuthController {
         request.setRoleId(1); 
         EmployeeResponse response = employeeService.createEmployee(request);
         return ResponseEntity.ok(ApiResponse.success("Admin created successfully", response));
+    }
+
+    /**
+     * Endpoint to get profile/account info for currently authenticated user.
+     */
+    @GetMapping({"/profile", "/info", "/me"})
+    public ResponseEntity<ApiResponse<EmployeeResponse>> getProfileInfo() {
+        EmployeeResponse response = employeeService.getProfileInfo();
+        return ResponseEntity.ok(ApiResponse.success("Profile info retrieved successfully", response));
     }
 }

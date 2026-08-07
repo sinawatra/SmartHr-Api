@@ -22,6 +22,8 @@ import com.smarthr.smarthr.response.PagedResponse;
 import com.smarthr.smarthr.service.AnnouncementService;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.RequestParam;
+
 
 @RestController
 @RequestMapping({"/api/v1/announcements", "/api/v1/announcements/"})

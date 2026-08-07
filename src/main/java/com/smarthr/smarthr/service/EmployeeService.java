@@ -9,6 +9,8 @@ import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -319,4 +321,22 @@ public class EmployeeService {
         EmployementStatus[] statuses = EmployementStatus.values();
         return Arrays.stream(statuses).map(EmployementStatus::name).toArray(String[]::new);
     }
+
+
+    /**
+     * Retrieve profile info of currently authenticated employee.
+     */
+    @Transactional(readOnly = true)
+    public EmployeeResponse getProfileInfo() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated() || "anonymousUser".equalsIgnoreCase(authentication.getName())) {
+            throw new IllegalStateException("User must be authenticated to get profile info");
+        }
+
+        String username = authentication.getName();
+        EmployeeDetails employee = employeeRepository.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("Employee not found with username: " + username));
+        return EmployeeResponse.fromEntity(employee, getOnboardingTasksForEmployee(employee.getId()));
+    }
 }
+

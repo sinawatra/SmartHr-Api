@@ -30,7 +30,7 @@ import lombok.RequiredArgsConstructor;
  * @author sinawatrarith
  */
 @RestController
-@RequestMapping("/api/v1/companies")
+@RequestMapping({"/api/v1/companies", "/api/v1/companies/", "/api/companies", "/api/companies/"})
 @RequiredArgsConstructor
 public class CompanyController {
 
@@ -46,6 +46,16 @@ public class CompanyController {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("Company created successfully", response));
     }
+
+    /**
+     * Get all companies as an unpaged list.
+     */
+    // @GetMapping("/list")
+    // @PreAuthorize("hasAnyAuthority('USER', 'ADMIN', 'ROLE_ADMIN')")
+    // public ResponseEntity<ApiResponse<java.util.List<CompanyResponse>>> getAllCompaniesList() {
+    //     java.util.List<CompanyResponse> companies = companyService.getAllCompanies();
+    //     return ResponseEntity.ok(ApiResponse.success(companies));
+    // }
 
     /**
      * Get companies with pagination (includes department list for each company).

@@ -68,4 +68,13 @@ public class JwtTokenProvider {
             return false;
         }
     }
+
+    public String getProfileInfoFromToken(String token) {
+        Claims claims = Jwts.parser()
+                .verifyWith(getSigningKey())
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
+        return claims.getSubject();
+    }
 }
