@@ -199,6 +199,7 @@ class EmployeeServiceTest {
         when(employeeRepository.existsByEmail("bob@smarthr.com")).thenReturn(false);
         when(passwordEncoder.encode("emp123")).thenReturn("encoded_emp123");
         when(employeeRepository.save(any(EmployeeDetails.class))).thenReturn(savedEmployee);
+        when(onboardingTaskRepository.saveAll(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
         EmployeeResponse response = employeeService.createEmployee(request);
 
@@ -206,7 +207,7 @@ class EmployeeServiceTest {
         assertEquals("onboarded_emp", response.getUsername());
         assertNotNull(response.getOnboardingTasks());
         assertEquals(2, response.getOnboardingTasks().size());
-        assertTrue(response.getOnboardingTasks().contains("Setup Workstation"));
+        assertTrue(response.getOnboardingTasks().stream().anyMatch(t -> "Setup Workstation".equals(t.getTaskName())));
         verify(onboardingTaskRepository, times(1)).saveAll(any());
     }
 
@@ -242,6 +243,7 @@ class EmployeeServiceTest {
         when(passwordEncoder.encode("emp123")).thenReturn("encoded_emp123");
         when(employeeRepository.save(any(EmployeeDetails.class))).thenReturn(savedEmployee);
         when(defaultOnboardingTaskRepository.findByActiveTrue()).thenReturn(List.of(defaultTask1, defaultTask2));
+        when(onboardingTaskRepository.saveAll(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
         EmployeeResponse response = employeeService.createEmployee(request);
 
@@ -249,8 +251,8 @@ class EmployeeServiceTest {
         assertEquals("default_onboard_emp", response.getUsername());
         assertNotNull(response.getOnboardingTasks());
         assertEquals(2, response.getOnboardingTasks().size());
-        assertTrue(response.getOnboardingTasks().contains("Default Task 1"));
-        assertTrue(response.getOnboardingTasks().contains("Default Task 2"));
+        assertTrue(response.getOnboardingTasks().stream().anyMatch(t -> "Default Task 1".equals(t.getTaskName())));
+        assertTrue(response.getOnboardingTasks().stream().anyMatch(t -> "Default Task 2".equals(t.getTaskName())));
         verify(onboardingTaskRepository, times(1)).saveAll(any());
     }
 

@@ -10,4 +10,5 @@ import com.smarthr.smarthr.entity.OnboardingTaskEntity;
 @Repository
 public interface OnboardingTaskRepository extends JpaRepository<OnboardingTaskEntity, Integer> {
     List<OnboardingTaskEntity> findByEmployeeId(Long employeeId);
+    List<OnboardingTaskEntity> findByEmployeeIdIn(List<Long> employeeIds);
 }

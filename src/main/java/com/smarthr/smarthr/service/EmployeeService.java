@@ -2,7 +2,9 @@ package com.smarthr.smarthr.service;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
@@ -29,6 +31,7 @@ import com.smarthr.smarthr.request.CreateEmployeeRequest;
 import com.smarthr.smarthr.request.LoginRequest;
 import com.smarthr.smarthr.response.EmployeeResponse;
 import com.smarthr.smarthr.response.LoginResponse;
+import com.smarthr.smarthr.response.OnboardingTaskResponse;
 import com.smarthr.smarthr.response.PagedResponse;
 import com.smarthr.smarthr.security.JwtTokenProvider;
 
@@ -99,7 +102,7 @@ public class EmployeeService {
                 ));
     }
 
-    private List<String> getOnboardingTaskNames(Long employeeId) {
+    private List<OnboardingTaskResponse> getOnboardingTasksForEmployee(Long employeeId) {
         if (onboardingTaskRepository == null || employeeId == null) {
             return null;
         }
@@ -108,8 +111,22 @@ public class EmployeeService {
             return null;
         }
         return tasks.stream()
-                .map(OnboardingTaskEntity::getTaskName)
+                .map(OnboardingTaskResponse::fromEntity)
                 .collect(Collectors.toList());
+    }
+
+    private Map<Long, List<OnboardingTaskResponse>> getOnboardingTasksMapForEmployees(List<Long> employeeIds) {
+        if (onboardingTaskRepository == null || employeeIds == null || employeeIds.isEmpty()) {
+            return Collections.emptyMap();
+        }
+        List<OnboardingTaskEntity> tasks = onboardingTaskRepository.findByEmployeeIdIn(employeeIds);
+        if (tasks == null || tasks.isEmpty()) {
+            return Collections.emptyMap();
+        }
+        return tasks.stream()
+                .map(OnboardingTaskResponse::fromEntity)
+                .filter(task -> task != null && task.getEmployeeId() != null)
+                .collect(Collectors.groupingBy(OnboardingTaskResponse::getEmployeeId));
     }
 
     /**
@@ -165,9 +182,8 @@ public class EmployeeService {
             }
         }
 
-        List<String> assignedTaskNames = null;
+        List<OnboardingTaskResponse> assignedTaskResponses = null;
         if (tasksToAssign != null && !tasksToAssign.isEmpty() && onboardingTaskRepository != null) {
-            assignedTaskNames = new ArrayList<>();
             List<OnboardingTaskEntity> taskEntities = new ArrayList<>();
             for (String taskName : tasksToAssign) {
                 if (taskName != null && !taskName.isBlank()) {
@@ -177,23 +193,32 @@ public class EmployeeService {
                             .completed(false)
                             .build();
                     taskEntities.add(taskEntity);
-                    assignedTaskNames.add(taskName);
                 }
             }
             if (!taskEntities.isEmpty()) {
-                onboardingTaskRepository.saveAll(taskEntities);
+                List<OnboardingTaskEntity> savedTasks = onboardingTaskRepository.saveAll(taskEntities);
+                assignedTaskResponses = savedTasks.stream()
+                        .map(OnboardingTaskResponse::fromEntity)
+                        .collect(Collectors.toList());
             }
         }
 
-        return EmployeeResponse.fromEntity(savedEmployee, assignedTaskNames);
+        return EmployeeResponse.fromEntity(savedEmployee, assignedTaskResponses);
     }
 
     /**
      * Retrieve all employees.
      */
     public List<EmployeeResponse> getAllEmployees() {
-        return employeeRepository.findAll().stream()
-                .map(emp -> EmployeeResponse.fromEntity(emp, getOnboardingTaskNames(emp.getId())))
+        List<EmployeeDetails> employees = employeeRepository.findAll();
+        if (employees.isEmpty()) {
+            return Collections.emptyList();
+        }
+        List<Long> employeeIds = employees.stream().map(EmployeeDetails::getId).collect(Collectors.toList());
+        Map<Long, List<OnboardingTaskResponse>> taskMap = getOnboardingTasksMapForEmployees(employeeIds);
+
+        return employees.stream()
+                .map(emp -> EmployeeResponse.fromEntity(emp, taskMap.get(emp.getId())))
                 .collect(Collectors.toList());
     }
 
@@ -202,8 +227,15 @@ public class EmployeeService {
      */
     public PagedResponse<EmployeeResponse> getAllEmployees(Pageable pageable) {
         Page<EmployeeDetails> page = employeeRepository.findAll(pageable);
-        List<EmployeeResponse> content = page.getContent().stream()
-                .map(emp -> EmployeeResponse.fromEntity(emp, getOnboardingTaskNames(emp.getId())))
+        List<EmployeeDetails> employees = page.getContent();
+        if (employees.isEmpty()) {
+            return PagedResponse.of(page, Collections.emptyList());
+        }
+        List<Long> employeeIds = employees.stream().map(EmployeeDetails::getId).collect(Collectors.toList());
+        Map<Long, List<OnboardingTaskResponse>> taskMap = getOnboardingTasksMapForEmployees(employeeIds);
+
+        List<EmployeeResponse> content = employees.stream()
+                .map(emp -> EmployeeResponse.fromEntity(emp, taskMap.get(emp.getId())))
                 .collect(Collectors.toList());
         return PagedResponse.of(page, content);
     }
@@ -214,7 +246,7 @@ public class EmployeeService {
     public EmployeeResponse getEmployeeById(Long id) {
         EmployeeDetails employee = employeeRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Employee not found with id: " + id));
-        return EmployeeResponse.fromEntity(employee, getOnboardingTaskNames(employee.getId()));
+        return EmployeeResponse.fromEntity(employee, getOnboardingTasksForEmployee(employee.getId()));
     }
 
     /**
@@ -223,7 +255,7 @@ public class EmployeeService {
     public EmployeeResponse getEmployeeByUsername(String username) {
         EmployeeDetails employee = employeeRepository.findByUsername(username)
                 .orElseThrow(() -> new ResourceNotFoundException("Employee not found with username: " + username));
-        return EmployeeResponse.fromEntity(employee, getOnboardingTaskNames(employee.getId()));
+        return EmployeeResponse.fromEntity(employee, getOnboardingTasksForEmployee(employee.getId()));
     }
 
     /**
@@ -269,7 +301,7 @@ public class EmployeeService {
         if (request.getEndDate() != null) employee.setEndDate(request.getEndDate());
 
         EmployeeDetails updated = employeeRepository.save(employee);
-        return EmployeeResponse.fromEntity(updated, getOnboardingTaskNames(updated.getId()));
+        return EmployeeResponse.fromEntity(updated, getOnboardingTasksForEmployee(updated.getId()));
     }
 
     /**

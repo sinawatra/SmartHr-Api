@@ -33,7 +33,7 @@ public class EmployeeResponse {
     private LocalDate probationEndDate;
     private String profileImage;
     private LocalDate endDate;
-    private List<String> onboardingTasks;
+    private List<OnboardingTaskResponse> onboardingTasks;
     private Instant createdAt;
     private Instant updatedAt;
 
@@ -41,7 +41,7 @@ public class EmployeeResponse {
         return fromEntity(employee, null);
     }
 
-    public static EmployeeResponse fromEntity(EmployeeDetails employee, List<String> onboardingTasks) {
+    public static EmployeeResponse fromEntity(EmployeeDetails employee, List<OnboardingTaskResponse> onboardingTasks) {
         return EmployeeResponse.builder()
                 .id(employee.getId())
                 .username(employee.getUsername())
@@ -56,7 +56,7 @@ public class EmployeeResponse {
                 .phoneNumber(employee.getPhoneNumber())
                 .employeeStatus(employee.getEmployeeStatus())
                 .hiredate(employee.getHiredate())
-            .probationEndDate(employee.getProbationEndDate())
+                .probationEndDate(employee.getProbationEndDate())
                 .profileImage(employee.getProfileImage())
                 .endDate(employee.getEndDate())
                 .onboardingTasks(onboardingTasks)
