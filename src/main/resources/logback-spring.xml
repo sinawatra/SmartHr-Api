@@ -1,16 +1,26 @@
 <configuration>
 
-    <appender name="LOGSTASH"
-              class="net.logstash.logback.appender.LogstashTcpSocketAppender">
+    <springProperty scope="context" name="LOGSTASH_HOST" source="logging.logstash.host" defaultValue="localhost"/>
+    <springProperty scope="context" name="LOGSTASH_PORT" source="logging.logstash.port" defaultValue="5044"/>
 
-        <destination>localhost:5044</destination>
-
-        <encoder class="net.logstash.logback.encoder.LogstashEncoder"/>
-
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
     </appender>
 
+    <springProfile name="logstash">
+        <appender name="LOGSTASH" class="net.logstash.logback.appender.LogstashTcpSocketAppender">
+            <destination>${LOGSTASH_HOST}:${LOGSTASH_PORT}</destination>
+            <encoder class="net.logstash.logback.encoder.LogstashEncoder"/>
+        </appender>
+    </springProfile>
+
     <root level="INFO">
-        <appender-ref ref="LOGSTASH"/>
+        <appender-ref ref="CONSOLE"/>
+        <springProfile name="logstash">
+            <appender-ref ref="LOGSTASH"/>
+        </springProfile>
     </root>
 
 </configuration>
