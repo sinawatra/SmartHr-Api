@@ -18,6 +18,8 @@ import com.smarthr.smarthr.repository.EmployeeRepository;
 import com.smarthr.smarthr.repository.LeaveRequestRepository;
 import com.smarthr.smarthr.repository.LeaveTypeRepository;
 import com.smarthr.smarthr.request.CreateLeaveRequest;
+import com.smarthr.smarthr.request.LeaveTypesRequest;
+import com.smarthr.smarthr.response.CreateLeaveTypeResponse;
 import com.smarthr.smarthr.response.LeaveRequestResponse;
 import com.smarthr.smarthr.response.PagedResponse;
 
@@ -169,5 +171,20 @@ public class LeaveRequestService {
                 .stream()
                 .map(Enum::name)
                 .collect(Collectors.toList());}
-}
+
+      
+    //Create leave type 
+    @Transactional
+    public CreateLeaveTypeResponse createLeaveType(LeaveTypesRequest leaveTypeRequest) {
+        LeaveTypeEntity leaveType = new LeaveTypeEntity();
+        leaveType.setName(leaveTypeRequest.getLeaveTypeName());
+        leaveType.setMaxDays(leaveTypeRequest.getMaxDays());
+        leaveType.setDescription(leaveTypeRequest.getLeaveTypeDescription());
+        leaveType = leaveTypeRepository.save(leaveType);
+        return new CreateLeaveTypeResponse(
+                leaveType.getName(),
+                leaveType.getMaxDays(),
+                leaveType.getDescription()
+        );
+    }}
 

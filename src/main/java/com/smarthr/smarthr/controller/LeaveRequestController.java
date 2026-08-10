@@ -23,7 +23,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.smarthr.smarthr.enumeration.LeaveStatus;
 import com.smarthr.smarthr.request.CreateLeaveRequest;
+import com.smarthr.smarthr.request.LeaveTypesRequest;
 import com.smarthr.smarthr.response.ApiResponse;
+import com.smarthr.smarthr.response.CreateLeaveTypeResponse;
 import com.smarthr.smarthr.response.LeaveRequestResponse;
 import com.smarthr.smarthr.response.PagedResponse;
 import com.smarthr.smarthr.service.LeaveRequestService;
@@ -92,5 +94,13 @@ public class LeaveRequestController {
     public ResponseEntity<ApiResponse<List<String>>> getAllLeaveStatuses() {
         List<String> statuses = leaveRequestService.getAllLeaveStatuses();
         return ResponseEntity.ok(ApiResponse.success(statuses)); 
+    }
+
+    // 6. Create a leave type 
+    @PostMapping("/leave-types")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public ResponseEntity<ApiResponse<CreateLeaveTypeResponse>> createLeaveType(@RequestBody LeaveTypesRequest leaveTypeRequest) {
+        CreateLeaveTypeResponse createdLeaveType = leaveRequestService.createLeaveType(leaveTypeRequest);
+        return ResponseEntity.ok(ApiResponse.success("Leave type created successfully", createdLeaveType));
     }
 }
