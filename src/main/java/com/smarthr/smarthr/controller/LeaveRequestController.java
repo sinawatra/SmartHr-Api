@@ -103,4 +103,11 @@ public class LeaveRequestController {
         CreateLeaveTypeResponse createdLeaveType = leaveRequestService.createLeaveType(leaveTypeRequest);
         return ResponseEntity.ok(ApiResponse.success("Leave type created successfully", createdLeaveType));
     }
+
+    // 7. Get all leave types
+    @GetMapping("/leave-types")
+    @PreAuthorize("hasAnyAuthority('USER', 'ADMIN', 'LINE_MANAGER')")
+    public ResponseEntity<ApiResponse<List<CreateLeaveTypeResponse>>> getAllLeaveTypes() {
+        List<CreateLeaveTypeResponse> leaveTypes = leaveRequestService.getAllLeaveTypes();
+        return ResponseEntity.ok(ApiResponse.success(leaveTypes));  }
 }

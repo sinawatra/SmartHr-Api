@@ -186,5 +186,19 @@ public class LeaveRequestService {
                 leaveType.getMaxDays(),
                 leaveType.getDescription()
         );
-    }}
+    }
+
+    //get leave type 
+    @Transactional(readOnly = true)
+    public List<CreateLeaveTypeResponse> getAllLeaveTypes() {
+        List<LeaveTypeEntity> leaveTypes = leaveTypeRepository.findAll();
+        return leaveTypes.stream()
+                .map(leaveType -> new CreateLeaveTypeResponse(
+                        leaveType.getName(),
+                        leaveType.getMaxDays(),
+                        leaveType.getDescription()
+                ))
+                .collect(Collectors.toList());  
+            }}
+        
 
