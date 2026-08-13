@@ -34,12 +34,18 @@ public class CompanyService {
             throw new IllegalArgumentException("Company with name '" + request.getName() + "' already exists");
         }
 
+        //TelegramChatId
+        if (request.getTelegramChatId() != null && request.getTelegramChatId().isBlank()) {
+            throw new IllegalArgumentException("Telegram Chat ID cannot be blank");
+        }
+
         CompanyEntity entity = CompanyEntity.builder()
                 .name(request.getName())
                 .code(request.getCode())
                 .address(request.getAddress())
                 .phone(request.getPhone())
                 .email(request.getEmail())
+                .telegramChatId(request.getTelegramChatId())
                 .build();
 
         CompanyEntity saved = companyRepository.save(entity);
@@ -87,6 +93,7 @@ public class CompanyService {
         if (request.getAddress() != null) entity.setAddress(request.getAddress());
         if (request.getPhone() != null) entity.setPhone(request.getPhone());
         if (request.getEmail() != null) entity.setEmail(request.getEmail());
+        if (request.getTelegramChatId() != null) entity.setTelegramChatId(request.getTelegramChatId());
 
         CompanyEntity updated = companyRepository.save(entity);
         return mapToResponse(updated);
@@ -113,6 +120,7 @@ public class CompanyService {
                 .address(entity.getAddress())
                 .phone(entity.getPhone())
                 .email(entity.getEmail())
+                .telegramChatId(entity.getTelegramChatId())
                 .departments(departmentResponses)
                 .createdAt(entity.getCreatedAt())
                 .updatedAt(entity.getUpdatedAt())

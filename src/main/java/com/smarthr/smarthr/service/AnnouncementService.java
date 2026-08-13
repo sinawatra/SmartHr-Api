@@ -24,8 +24,10 @@ import com.smarthr.smarthr.response.AnnouncementResponse;
 import com.smarthr.smarthr.response.PagedResponse;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 @Transactional
 public class AnnouncementService {
@@ -34,6 +36,7 @@ public class AnnouncementService {
     private final EmployeeRepository employeeRepository;
     private final CompanyRepository companyRepository;
     private final DepartmentRepository departmentRepository;
+    private final TelegramService telegramService;
 
     /**
      * Create announcement for current authenticated user obtained via SecurityContextHolder.
@@ -71,8 +74,19 @@ public class AnnouncementService {
                 .build();
 
         AnnouncementEntity saved = announcementRepository.save(announcement);
-        return AnnouncementResponse.fromEntity(saved);
-    }
+        if (company != null && company.getTelegramChatId() != null) {
+                try {
+                    telegramService.sendAnnouncementNotification(
+                        company.getTelegramChatId(), 
+                        saved.getTitle(), 
+                        saved.getDescription()
+                    );
+                } catch (Exception e) {
+                    log.error("Failed to push Telegram notification: {}", e.getMessage());
+                }
+            }
+            return AnnouncementResponse.fromEntity(saved);
+        }
 
     /**
      * Retrieve all announcements.
@@ -140,6 +154,44 @@ public class AnnouncementService {
         announcementRepository.deleteById(id);
     }
 
+    //Push Existing Announcement to Telegram Channel
+    public AnnouncementResponse pushAnnouncementToTelegram(Long id) {   
+        
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new IllegalStateException("User must be authenticated to push an announcement");
+        }
+        
+        String username = authentication.getName();
+        EmployeeDetails currentEmployee = employeeRepository.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("Employee not found with username: " + username));
+
+        AnnouncementEntity announcement = announcementRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Announcement not found with id: " + id));
+
+        CompanyEntity company = announcement.getCompany();
+        if (company == null || company.getTelegramChatId() == null) {
+            throw new IllegalArgumentException("Cannot push to Telegram: No associated company or Telegram chat ID.");
+        }
+
+        Integer userCompanyId = currentEmployee.getCompanyId();
+        if (userCompanyId == null || !company.getId().equals(userCompanyId.longValue())) {
+            throw new IllegalArgumentException("Push failed: Current user's company ID does not match the announcement's company ID.");
+        }
+
+        try {
+            telegramService.sendAnnouncementNotification(
+                company.getTelegramChatId(), 
+                announcement.getTitle(), 
+                announcement.getDescription()
+            );
+        } catch (Exception e) {
+            log.error("Failed to push Telegram notification: {}", e.getMessage());
+            throw new RuntimeException("Failed to push announcement to Telegram", e);
+        }
+
+        return AnnouncementResponse.fromEntity(announcement);
+    }
     private CompanyEntity resolveCompany(Long companyId) {
         if (companyId == null) {
             return null;

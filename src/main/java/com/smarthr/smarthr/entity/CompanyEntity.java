@@ -61,4 +61,7 @@ public class CompanyEntity {
     @UpdateTimestamp
     @Column(name = "updated_at")
     private Instant updatedAt;
+
+    @Column(name = "telegram_chat_id")
+    private String telegramChatId;
 }

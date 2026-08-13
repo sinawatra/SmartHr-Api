@@ -22,4 +22,5 @@ public class CompanyResponse {
     private List<DepartmentResponse> departments;
     private Instant createdAt;
     private Instant updatedAt;
+    private String telegramChatId;
 }

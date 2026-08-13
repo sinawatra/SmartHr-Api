@@ -1,7 +1,5 @@
 package com.smarthr.smarthr.controller;
 
-import java.util.List;
-
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,13 +14,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.smarthr.smarthr.request.AnnouncementRequest;
-import com.smarthr.smarthr.response.ApiResponse;
 import com.smarthr.smarthr.response.AnnouncementResponse;
+import com.smarthr.smarthr.response.ApiResponse;
 import com.smarthr.smarthr.response.PagedResponse;
 import com.smarthr.smarthr.service.AnnouncementService;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.RequestParam;
 
 
 @RestController
@@ -70,4 +67,12 @@ public class AnnouncementController {
         announcementService.deleteAnnouncement(id);
         return ResponseEntity.ok(ApiResponse.success("Announcement deleted successfully", null));
     }
+
+
+    //Push Existing Announcement to Telegram Channel
+    @PostMapping("/{id}/push")
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'ROLE_ADMIN')")
+    public ResponseEntity<ApiResponse<AnnouncementResponse>> pushAnnouncementToTelegram(@PathVariable Long id) {
+        AnnouncementResponse response = announcementService.pushAnnouncementToTelegram(id);
+        return ResponseEntity.ok(ApiResponse.success("Announcement pushed to Telegram successfully", response));    }
 }
