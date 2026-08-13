@@ -55,6 +55,9 @@ class EmployeeServiceTest {
     @Mock
     private com.smarthr.smarthr.repository.DefaultOnboardingTaskRepository defaultOnboardingTaskRepository;
 
+    @Mock
+    private com.smarthr.smarthr.repository.CompanyRepository companyRepository;
+
     @InjectMocks
     private EmployeeService employeeService;
 

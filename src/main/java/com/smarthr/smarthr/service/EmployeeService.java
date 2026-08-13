@@ -24,6 +24,7 @@ import com.smarthr.smarthr.enumeration.EmployementStatus;
 import com.smarthr.smarthr.exception.InvalidCredentialsException;
 import com.smarthr.smarthr.exception.ResourceNotFoundException;
 import com.smarthr.smarthr.exception.UserAlreadyExistsException;
+import com.smarthr.smarthr.repository.CompanyRepository;
 import com.smarthr.smarthr.repository.DefaultOnboardingTaskRepository;
 import com.smarthr.smarthr.repository.DepartmentRepository;
 import com.smarthr.smarthr.repository.EmployeeRepository;
@@ -88,7 +89,8 @@ public class EmployeeService {
             return null;
         }
         if (request.getRoleId() != null) {
-            return roleRepository.findById(request.getRoleId()).orElse(null);
+            return roleRepository.findById(request.getRoleId())
+                    .orElseThrow(() -> new EntityNotFoundException("Role not found with ID: " + request.getRoleId()));
         }
         return null;
     }
@@ -102,6 +104,22 @@ public class EmployeeService {
                 .orElseThrow(() -> new EntityNotFoundException(
                     "Department not found with ID: " + request.getDepartmentId()
                 ));
+    }
+
+    private void validateCompany(Integer companyId) {
+        if (companyId != null && companyRepository != null) {
+            if (!companyRepository.existsById(companyId.longValue())) {
+                throw new EntityNotFoundException("Company not found with ID: " + companyId);
+            }
+        }
+    }
+
+    private void validateManager(Integer managerId) {
+        if (managerId != null && employeeRepository != null) {
+            if (!employeeRepository.existsById(managerId.longValue())) {
+                throw new EntityNotFoundException("Manager employee not found with ID: " + managerId);
+            }
+        }
     }
 
     private List<OnboardingTaskResponse> getOnboardingTasksForEmployee(Long employeeId) {
@@ -152,6 +170,8 @@ public class EmployeeService {
 
         RoleEntity assignedRole = resolveRole(request);
         DepartmentEntity assignedDepartment = resolveDepartment(request);
+        validateCompany(request.getCompanyId());
+        validateManager(request.getManagerId());
 
         EmployeeDetails employee = EmployeeDetails.builder()
                 .username(request.getUsername())
@@ -295,8 +315,14 @@ public class EmployeeService {
         if (request.getPhoneNumber() != null) employee.setPhoneNumber(request.getPhoneNumber());
         if (request.getEmployeeCode() != null) employee.setEmployeeCode(request.getEmployeeCode());
         if (request.getEmployeeStatus() != null) employee.setEmployeeStatus(request.getEmployeeStatus());
-        if (request.getCompanyId() != null) employee.setCompanyId(request.getCompanyId());
-        if (request.getManagerId() != null) employee.setManagerId(request.getManagerId());
+        if (request.getCompanyId() != null) {
+            validateCompany(request.getCompanyId());
+            employee.setCompanyId(request.getCompanyId());
+        }
+        if (request.getManagerId() != null) {
+            validateManager(request.getManagerId());
+            employee.setManagerId(request.getManagerId());
+        }
         if (request.getHiredate() != null) employee.setHiredate(request.getHiredate());
         if (request.getProbationEndDate() != null) employee.setProbationEndDate(request.getProbationEndDate());
         if (request.getProfileImage() != null) employee.setProfileImage(request.getProfileImage());
