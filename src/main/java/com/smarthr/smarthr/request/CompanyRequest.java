@@ -16,4 +16,6 @@ public class CompanyRequest {
     private String phone;
     private String email;
     private String telegramChatId;
+    private String latitute;
+    private String longitude;
 }

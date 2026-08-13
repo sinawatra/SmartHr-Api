@@ -18,7 +18,9 @@ public class CompanyResponse {
     private String code;
     private String address;
     private String phone;
-    private String email;
+    private String email;   
+    private String longitude;
+    private String latitude;
     private List<DepartmentResponse> departments;
     private Instant createdAt;
     private Instant updatedAt;

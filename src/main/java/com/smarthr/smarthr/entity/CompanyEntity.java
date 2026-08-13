@@ -47,6 +47,8 @@ public class CompanyEntity {
     private String address;
     private String phone;
     private String email;
+    private String longitude;
+    private String latitude;
 
     @OneToMany(mappedBy = "company", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @ToString.Exclude

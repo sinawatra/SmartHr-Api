@@ -154,7 +154,9 @@ public class AnnouncementService {
         announcementRepository.deleteById(id);
     }
 
-    //Push Existing Announcement to Telegram Channel
+    /**
+     * Push Existing Announcement to Telegram Channel
+     */
     public AnnouncementResponse pushAnnouncementToTelegram(Long id) {   
         
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

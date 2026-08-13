@@ -45,6 +45,8 @@ public class CompanyService {
                 .address(request.getAddress())
                 .phone(request.getPhone())
                 .email(request.getEmail())
+                .longitude(request.getLongitude())
+                .latitude(request.getLatitute())
                 .telegramChatId(request.getTelegramChatId())
                 .build();
 
@@ -94,6 +96,8 @@ public class CompanyService {
         if (request.getPhone() != null) entity.setPhone(request.getPhone());
         if (request.getEmail() != null) entity.setEmail(request.getEmail());
         if (request.getTelegramChatId() != null) entity.setTelegramChatId(request.getTelegramChatId());
+        if (request.getLongitude() != null) entity.setLongitude(request.getLongitude());
+        if (request.getLatitude() != null) entity.setLatitude(request.getLatitude());
 
         CompanyEntity updated = companyRepository.save(entity);
         return mapToResponse(updated);
@@ -120,6 +124,8 @@ public class CompanyService {
                 .address(entity.getAddress())
                 .phone(entity.getPhone())
                 .email(entity.getEmail())
+                .longitude(entity.getLongitude())
+                .latitude(entity.getLatitude())
                 .telegramChatId(entity.getTelegramChatId())
                 .departments(departmentResponses)
                 .createdAt(entity.getCreatedAt())
