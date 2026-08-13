@@ -53,6 +53,7 @@ public class EmployeeService {
     private final JwtTokenProvider tokenProvider;
     private final OnboardingTaskRepository onboardingTaskRepository;
     private final DefaultOnboardingTaskRepository defaultOnboardingTaskRepository;
+    private final CompanyRepository companyRepository;
 
     /**
      * Authenticate user/admin by username and password.
