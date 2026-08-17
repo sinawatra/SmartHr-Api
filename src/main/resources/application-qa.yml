@@ -1,0 +1,12 @@
+spring:
+  config:
+    activate:
+      on-profile: prod
+
+cloudinary:
+  cloud-name: ${CLOUDINARY_CLOUD_NAME:your_key}
+  api-key: ${CLOUDINARY_API_KEY:your_key}
+  api-secret: ${CLOUDINARY_API_SECRET:your_key}
+
+build:
+  version: "2.0.0"

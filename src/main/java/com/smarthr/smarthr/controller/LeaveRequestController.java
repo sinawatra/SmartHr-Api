@@ -10,7 +10,12 @@ import java.util.List;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -44,11 +49,25 @@ public class LeaveRequestController {
         this.leaveRequestService = leaveRequestService;
     }
 
-    // 1. Any logged-in user can submit a leave request
-    @PostMapping
+    // 1a. Any logged-in user can submit a leave request via JSON
+    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasAnyAuthority('USER', 'ADMIN')")
-    public ResponseEntity<LeaveRequestResponse> createRequest(@RequestBody CreateLeaveRequest request) {
-        return ResponseEntity.ok(leaveRequestService.create(request));
+    public ResponseEntity<ApiResponse<LeaveRequestResponse>> createRequest(@RequestBody CreateLeaveRequest request) {
+        LeaveRequestResponse response = leaveRequestService.create(request, null);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ApiResponse.success("Leave requested successfully", response));
+    }
+
+    // 1b. Any logged-in user can submit a leave request with file attachment (Images, PDF, etc.)
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreAuthorize("hasAnyAuthority('USER', 'ADMIN')")
+    public ResponseEntity<ApiResponse<LeaveRequestResponse>> createRequestWithFile(
+            @ModelAttribute CreateLeaveRequest request,
+            @RequestParam(value = "file", required = false) MultipartFile file) {
+        MultipartFile attachment = (file != null && !file.isEmpty()) ? file : request.getFile();
+        LeaveRequestResponse response = leaveRequestService.create(request, attachment);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ApiResponse.success("Leave requested successfully with attachment", response));
     }
 
     // 2. Regular users can ONLY view their own leave requests with pagination

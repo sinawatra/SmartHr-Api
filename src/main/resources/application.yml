@@ -1,4 +1,33 @@
-cloudinary:
-  cloud-name: ${CLOUDINARY_CLOUD_NAME:your_cloud_name}
-  api-key: ${CLOUDINARY_API_KEY:your_api_key}
-  api-secret: ${CLOUDINARY_API_SECRET:your_api_secret}
+spring:
+  application:
+    name: smarthr
+  profiles:
+    active: qa
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://172.24.100.101:5432/postgres}
+    username: ${SPRING_DATASOURCE_USERNAME:postgres}
+    password: ${SPRING_DATASOURCE_PASSWORD:postgres}
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    properties:
+      hibernate:
+        format_sql: true
+
+server:
+  port: ${PORT:8080}
+
+telegram:
+  bot:
+    token: ${TELEGRAM_BOT_TOKEN:YOUR LOCAL BOT TOKEN HERE}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+
+build:
+  version: "3.0.0"

@@ -53,8 +53,7 @@ public class DefaultOnboardingTaskService {
     }
 
     public DefaultOnboardingTaskResponse updateTask(Integer id, DefaultOnboardingTaskRequest request) {
-        DefaultOnboardingTaskEntity task = repository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Default onboarding task not found with id: " + id));
+        DefaultOnboardingTaskEntity task = repository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Default onboarding task not found with id: " + id));
 
         if (request.getTaskName() != null && !request.getTaskName().isBlank()) {
             task.setTaskName(request.getTaskName());

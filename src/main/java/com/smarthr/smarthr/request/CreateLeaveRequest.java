@@ -9,6 +9,8 @@ import java.time.LocalDate;
 import lombok.Getter;
 import lombok.Setter;
 
+import org.springframework.web.multipart.MultipartFile;
+
 /**
  *
  * @author sinawatrarith
@@ -21,4 +23,5 @@ public class CreateLeaveRequest {
     private LocalDate startDate; 
     private LocalDate endDate;
     private String reason;
+    private MultipartFile file;
 }

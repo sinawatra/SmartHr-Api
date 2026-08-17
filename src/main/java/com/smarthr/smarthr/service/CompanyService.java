@@ -97,7 +97,7 @@ public class CompanyService {
         if (request.getEmail() != null) entity.setEmail(request.getEmail());
         if (request.getTelegramChatId() != null) entity.setTelegramChatId(request.getTelegramChatId());
         if (request.getLongitude() != null) entity.setLongitude(request.getLongitude());
-        if (request.getLatitude() != null) entity.setLatitude(request.getLatitude());
+        if (request.getLatitute() != null) entity.setLatitude(request.getLatitute());
 
         CompanyEntity updated = companyRepository.save(entity);
         return mapToResponse(updated);

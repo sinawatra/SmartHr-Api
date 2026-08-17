@@ -1,3 +1,8 @@
+# ===================================================================
+# Reference Copy of application.properties
+# Note: Active configuration is currently loaded from application.yml
+# ===================================================================
+
 spring.application.name=smarthr
 
 # Dynamic Port assigned by Render (falls back to 8080 for local dev)
@@ -14,6 +19,5 @@ spring.jpa.hibernate.ddl-auto=update
 spring.jpa.show-sql=true
 spring.jpa.properties.hibernate.format_sql=true
 
-# Add this line to application.properties
 spring.jpa.database-platform=org.hibernate.dialect.PostgreSQLDialect
 management.endpoints.web.exposure.include=health

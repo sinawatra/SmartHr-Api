@@ -28,6 +28,7 @@ public class LeaveRequestResponse {
     private LocalDate startDate;
     private LocalDate endDate;
     private String reason;
+    private String attachmentUrl;
     private String status;
     private LocalDateTime approvedAt;
 

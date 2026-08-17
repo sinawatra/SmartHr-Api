@@ -10,6 +10,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Map;
+import org.springframework.web.multipart.MultipartFile;
+
 import com.smarthr.smarthr.entity.EmployeeDetails;
 import com.smarthr.smarthr.entity.LeaveRequestEntity;
 import com.smarthr.smarthr.entity.LeaveTypeEntity;
@@ -33,13 +36,16 @@ public class LeaveRequestService {
     private final EmployeeRepository employeeRepository;
     private final LeaveTypeRepository leaveTypeRepository;
     private final LeaveRequestRepository leaveRequestRepository;
+    private final CloudinaryService cloudinaryService;
 
     public LeaveRequestService(EmployeeRepository employeeRepository,
-                               LeaveTypeRepository leaveTypeRepository,
-                               LeaveRequestRepository leaveRequestRepository) {
+                                LeaveTypeRepository leaveTypeRepository,
+                                LeaveRequestRepository leaveRequestRepository,
+                                CloudinaryService cloudinaryService) {
         this.employeeRepository = employeeRepository;
         this.leaveTypeRepository = leaveTypeRepository;
         this.leaveRequestRepository = leaveRequestRepository;
+        this.cloudinaryService = cloudinaryService;
     }
 
     /**
@@ -47,14 +53,24 @@ public class LeaveRequestService {
      */
     @Transactional
     public LeaveRequestResponse create(CreateLeaveRequest request) {
+        return create(request, null);
+    }
+
+    @Transactional
+    public LeaveRequestResponse create(CreateLeaveRequest request, MultipartFile file) {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         EmployeeDetails employee = employeeRepository.findByUsername(username)
                 .orElseThrow(() -> new IllegalArgumentException("Employee not found for authenticated user: " + username));
-        return createLeaveRequest(employee.getId(), request);
+        return createLeaveRequest(employee.getId(), request, file);
     }
 
     @Transactional
     public LeaveRequestResponse createLeaveRequest(Long employeeId, CreateLeaveRequest request) {
+        return createLeaveRequest(employeeId, request, null);
+    }
+
+    @Transactional
+    public LeaveRequestResponse createLeaveRequest(Long employeeId, CreateLeaveRequest request, MultipartFile file) {
         EmployeeDetails employee = employeeRepository.findById(employeeId)
                 .orElseThrow(() -> new IllegalArgumentException("Employee not found"));
 
@@ -70,6 +86,18 @@ public class LeaveRequestService {
         leaveRequest.setEndDate(request.getEndDate());
         leaveRequest.setReason(request.getReason());
         leaveRequest.setStatus(LeaveStatus.PENDING);
+
+        // 4. Handle attachment upload (Image or Document like PDF) via Cloudinary
+        if (file != null && !file.isEmpty()) {
+            try {
+                Map<?, ?> uploadResult = cloudinaryService.uploadFile(file, "leave_attachments");
+                if (uploadResult != null && uploadResult.containsKey("secure_url")) {
+                    leaveRequest.setAttachmentUrl(uploadResult.get("secure_url").toString());
+                }
+            } catch (Exception e) {
+                throw new RuntimeException("Failed to upload leave attachment: " + e.getMessage(), e);
+            }
+        }
 
         LeaveRequestEntity saved = leaveRequestRepository.save(leaveRequest);
         return mapToResponse(saved);
@@ -148,6 +176,7 @@ public class LeaveRequestService {
                 entity.getStartDate(),
                 entity.getEndDate(),
                 entity.getReason(),
+                entity.getAttachmentUrl(),
                 entity.getStatus().name(),
                 entity.getApprovedAt()
         );
