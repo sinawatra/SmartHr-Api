@@ -25,14 +25,18 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.smarthr.smarthr.enumeration.LeaveStatus;
+import jakarta.validation.Valid;
+
 import com.smarthr.smarthr.request.CreateLeaveRequest;
 import com.smarthr.smarthr.request.LeaveTypesRequest;
+import com.smarthr.smarthr.request.UpdateLeaveRequest;
 import com.smarthr.smarthr.response.ApiResponse;
 import com.smarthr.smarthr.response.CreateLeaveTypeResponse;
 import com.smarthr.smarthr.response.LeaveRequestResponse;
 import com.smarthr.smarthr.response.PagedResponse;
+import com.smarthr.smarthr.response.UpdateLeaveStatusResponse;
 import com.smarthr.smarthr.service.LeaveRequestService;
+
 
 
 /**
@@ -81,19 +85,19 @@ public class LeaveRequestController {
         Pageable pageable = PageRequest.of(page, size, sort);
         PagedResponse<LeaveRequestResponse> response = leaveRequestService.getRequestsForCurrentUser(pageable);
 
-      return  ResponseEntity.status(HttpStatus.CREATED)
-                .body(ApiResponse.success("Leave requested successfully with attachment", response));
+        return ResponseEntity.ok(ApiResponse.success("My leave requests retrieved successfully", response));
     }
 
     // 3. ONLY ADMINs can approve or reject leave requests
     @PutMapping("/{id}/status")
     @PreAuthorize("hasAnyAuthority('ADMIN', 'LINE_MANAGER')")
-    public ResponseEntity<Void> updateStatus(
+    public ResponseEntity<ApiResponse<UpdateLeaveStatusResponse>> updateStatus(
             @PathVariable Long id, 
-            @RequestBody LeaveStatus status) {
+            @Valid @RequestBody UpdateLeaveRequest dto) {
         
-        leaveRequestService.updateStatus(id, status);
-        return ResponseEntity.ok().build();
+        UpdateLeaveStatusResponse response = leaveRequestService.updateStatus(id, dto);
+
+        return ResponseEntity.ok(ApiResponse.success("Update Leave Status Successfully", response));
     }
 
     // 4. Admins can view all leave requests with pagination
@@ -107,12 +111,10 @@ public class LeaveRequestController {
         Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
         Pageable pageable = PageRequest.of(page, size, sort);
 
-        PagedResponse<LeaveRequestRequest> response =  leaveRequestService.getAllRequests(pageable);
+        PagedResponse<LeaveRequestResponse> response = leaveRequestService.getAllRequests(pageable);
 
-
-         return  ResponseEntity.status(HttpStatus.CREATED)
-                .body(ApiResponse.success("Leave requested successfully with attachment", response));
-        }
+        return ResponseEntity.ok(ApiResponse.success("All leave requests retrieved successfully", response));
+    }
 
     // 5. Get all leave statuses
     @GetMapping("/statuses")

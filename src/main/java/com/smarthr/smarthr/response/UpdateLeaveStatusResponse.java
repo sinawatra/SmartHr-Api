@@ -5,10 +5,11 @@
 
 package com.smarthr.smarthr.response;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
+import com.smarthr.smarthr.enumeration.LeaveStatus;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -17,19 +18,16 @@ import lombok.Setter;
  *
  * @author sinawatrarith
  */
-@Getter
-@Setter
+
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class LeaveRequestResponse {
-    private Long id;
-    private Long employeeId;
-    private Integer leaveTypeId;
-    private LocalDate startDate;
-    private LocalDate endDate;
-    private String reason;
-    private String attachmentUrl;
-    private String status;
-    private LocalDateTime approvedAt;
+@Builder
+@Getter 
+@Setter
+public class UpdateLeaveStatusResponse {
+    private LeaveStatus status;
+    private String reason; // optional: e.g., rejection reason
+
 
 }

@@ -22,9 +22,11 @@ import com.smarthr.smarthr.repository.LeaveRequestRepository;
 import com.smarthr.smarthr.repository.LeaveTypeRepository;
 import com.smarthr.smarthr.request.CreateLeaveRequest;
 import com.smarthr.smarthr.request.LeaveTypesRequest;
+import com.smarthr.smarthr.request.UpdateLeaveRequest;
 import com.smarthr.smarthr.response.CreateLeaveTypeResponse;
 import com.smarthr.smarthr.response.LeaveRequestResponse;
 import com.smarthr.smarthr.response.PagedResponse;
+import com.smarthr.smarthr.response.UpdateLeaveStatusResponse;
 
 /**
  * Service class handling leave request business logic.
@@ -104,9 +106,12 @@ public class LeaveRequestService {
     }
 
     @Transactional
-    public void updateStatus(Long id, LeaveStatus newStatus) {
-        // 1. Validate non-null status input
-        if (newStatus == null) {
+    public UpdateLeaveStatusResponse updateStatus(Long id, UpdateLeaveRequest dto) {
+        // 1. Validate non-null inputs
+        if (id == null) {
+            throw new IllegalArgumentException("Leave request ID cannot be null.");
+        }
+        if (dto == null || dto.getStatus() == null) {
             throw new IllegalArgumentException("Leave status cannot be null.");
         }
 
@@ -121,17 +126,28 @@ public class LeaveRequestService {
         }
 
         // 4. Handle status transitions and domain logic
-        if (newStatus == LeaveStatus.APPROVED) {
-            // Optional: Ensure employee has enough leave balance before approving
-            // validateAndDeductLeaveBalance(leaveRequest);
-            
+        if (dto.getStatus() == LeaveStatus.APPROVED) {
             leaveRequest.setApprovedAt(LocalDateTime.now());
         }
 
-        leaveRequest.setStatus(newStatus);
+        if (dto.getReason() != null && !dto.getReason().isBlank()) {
+            leaveRequest.setRemarks(dto.getReason());
+        }
+
+        leaveRequest.setStatus(dto.getStatus());
 
         // 5. Save entity
-        leaveRequestRepository.save(leaveRequest);
+        LeaveRequestEntity saved = leaveRequestRepository.save(leaveRequest);
+
+        return UpdateLeaveStatusResponse.builder()
+                .status(saved.getStatus())
+                .reason(saved.getRemarks() != null ? saved.getRemarks() : dto.getReason())
+                .build();
+    }
+
+    @Transactional
+    public UpdateLeaveStatusResponse updateStatus(Long id, LeaveStatus status) {
+        return updateStatus(id, new UpdateLeaveRequest(status, null));
     }
 
     @Transactional

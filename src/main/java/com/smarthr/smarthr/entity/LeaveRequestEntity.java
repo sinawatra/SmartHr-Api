@@ -32,7 +32,7 @@ public class LeaveRequestEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
     // The employee making the leave request
     @ManyToOne(fetch = FetchType.LAZY)
