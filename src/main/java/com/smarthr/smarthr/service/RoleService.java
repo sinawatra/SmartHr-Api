@@ -3,6 +3,8 @@ package com.smarthr.smarthr.service;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -32,6 +34,7 @@ public class RoleService {
      * Create a new role.
      */
     @Transactional
+    @CacheEvict(value = "roles", allEntries = true)
     public RoleResponse createRole(RoleRequest request) {
         String roleName = request.getName();
         if (roleName == null || roleName.isBlank()) {
@@ -55,6 +58,7 @@ public class RoleService {
      * Get role by ID.
      */
     @Transactional(readOnly = true)
+    @Cacheable(value = "roles", key = "#id")
     public RoleResponse getRoleById(Integer id) {
         RoleEntity roleEntity = roleRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Role not found with ID: " + id));
@@ -65,6 +69,7 @@ public class RoleService {
      * Get role by name.
      */
     @Transactional(readOnly = true)
+    @Cacheable(value = "roles", key = "#name")
     public RoleResponse getRoleByName(String name) {
         RoleEntity roleEntity = roleRepository.findByName(name)
                 .orElseThrow(() -> new ResourceNotFoundException("Role not found with name: " + name));
@@ -75,6 +80,7 @@ public class RoleService {
      * Get all roles without pagination.
      */
     @Transactional(readOnly = true)
+    @Cacheable(value = "roles", key = "'all'")
     public List<RoleResponse> getAllRoles() {
         return roleRepository.findAll()
                 .stream()
@@ -99,6 +105,7 @@ public class RoleService {
      * Update role by ID.
      */
     @Transactional
+    @CacheEvict(value = "roles", allEntries = true)
     public RoleResponse updateRole(Integer id, RoleRequest request) {
         RoleEntity roleEntity = roleRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Role not found with ID: " + id));
@@ -120,6 +127,7 @@ public class RoleService {
      * Delete role by ID.
      */
     @Transactional
+    @CacheEvict(value = "roles", allEntries = true)
     public void deleteRole(Integer id) {
         RoleEntity roleEntity = roleRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Role not found with ID: " + id));

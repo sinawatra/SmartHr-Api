@@ -3,6 +3,8 @@ package com.smarthr.smarthr.service;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -26,6 +28,7 @@ public class DepartmentService {
     private final CompanyRepository companyRepository;
 
     @Transactional
+    @CacheEvict(value = "departments", allEntries = true)
     public DepartmentResponse createDepartment(DepartmentRequest request) {
         if (request.getName() == null || request.getName().isBlank()) {
             throw new IllegalArgumentException("Department name is required");
@@ -52,6 +55,7 @@ public class DepartmentService {
     }
 
     @Transactional(readOnly = true)
+    @Cacheable(value = "departments", key = "'all'")
     public List<DepartmentResponse> getAllDepartments() {
         return departmentRepository.findAll()
                 .stream()
@@ -70,6 +74,7 @@ public class DepartmentService {
     }
 
     @Transactional(readOnly = true)
+    @Cacheable(value = "departments", key = "#id")
     public DepartmentResponse getDepartmentById(Long id) {
         DepartmentEntity entity = departmentRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Department not found with ID: " + id));
@@ -77,6 +82,7 @@ public class DepartmentService {
     }
 
     @Transactional
+    @CacheEvict(value = "departments", allEntries = true)
     public DepartmentResponse updateDepartment(Long id, DepartmentRequest request) {
         DepartmentEntity entity = departmentRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Department not found with ID: " + id));
@@ -104,6 +110,7 @@ public class DepartmentService {
     }
 
     @Transactional
+    @CacheEvict(value = "departments", allEntries = true)
     public void deleteDepartment(Long id) {
         DepartmentEntity entity = departmentRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Department not found with ID: " + id));

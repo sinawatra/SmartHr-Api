@@ -3,6 +3,8 @@ package com.smarthr.smarthr.service;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
@@ -41,6 +43,7 @@ public class AnnouncementService {
     /**
      * Create announcement for current authenticated user obtained via SecurityContextHolder.
      */
+    @CacheEvict(value = "announcements", allEntries = true)
     public AnnouncementResponse createAnnouncement(AnnouncementRequest request) {
         if (request.getTitle() == null || request.getTitle().isBlank()) {
             throw new IllegalArgumentException("Title is required");
@@ -92,6 +95,7 @@ public class AnnouncementService {
      * Retrieve all announcements.
      */
     @Transactional(readOnly = true)
+    @Cacheable(value = "announcements", key = "'all'")
     public List<AnnouncementResponse> getAllAnnouncements() {
         return announcementRepository.findAll().stream()
                 .map(AnnouncementResponse::fromEntity)
@@ -114,6 +118,7 @@ public class AnnouncementService {
      * Retrieve announcement by ID.
      */
     @Transactional(readOnly = true)
+    @Cacheable(value = "announcements", key = "#id")
     public AnnouncementResponse getAnnouncementById(Long id) {
         AnnouncementEntity announcement = announcementRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Announcement not found with id: " + id));
@@ -123,6 +128,7 @@ public class AnnouncementService {
     /**
      * Update announcement.
      */
+    @CacheEvict(value = "announcements", allEntries = true)
     public AnnouncementResponse updateAnnouncement(Long id, AnnouncementRequest request) {
         AnnouncementEntity announcement = announcementRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Announcement not found with id: " + id));
@@ -147,6 +153,7 @@ public class AnnouncementService {
     /**
      * Delete announcement by ID.
      */
+    @CacheEvict(value = "announcements", allEntries = true)
     public void deleteAnnouncement(Long id) {
         if (!announcementRepository.existsById(id)) {
             throw new ResourceNotFoundException("Announcement not found with id: " + id);

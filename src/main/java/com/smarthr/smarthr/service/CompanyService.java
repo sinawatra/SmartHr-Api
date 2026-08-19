@@ -3,6 +3,8 @@ package com.smarthr.smarthr.service;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -25,6 +27,7 @@ public class CompanyService {
     private final DepartmentService departmentService;
 
     @Transactional
+    @CacheEvict(value = "companies", allEntries = true)
     public CompanyResponse createCompany(CompanyRequest request) {
         if (request.getName() == null || request.getName().isBlank()) {
             throw new IllegalArgumentException("Company name is required");
@@ -55,6 +58,7 @@ public class CompanyService {
     }
 
     @Transactional(readOnly = true)
+    @Cacheable(value = "companies", key = "'all'")
     public List<CompanyResponse> getAllCompanies() {
         return companyRepository.findAll()
                 .stream()
@@ -73,6 +77,7 @@ public class CompanyService {
     }
 
     @Transactional(readOnly = true)
+    @Cacheable(value = "companies", key = "#id")
     public CompanyResponse getCompanyById(Long id) {
         CompanyEntity entity = companyRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Company not found with ID: " + id));
@@ -80,6 +85,7 @@ public class CompanyService {
     }
 
     @Transactional
+    @CacheEvict(value = "companies", allEntries = true)
     public CompanyResponse updateCompany(Long id, CompanyRequest request) {
         CompanyEntity entity = companyRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Company not found with ID: " + id));
@@ -104,6 +110,7 @@ public class CompanyService {
     }
 
     @Transactional
+    @CacheEvict(value = "companies", allEntries = true)
     public void deleteCompany(Long id) {
         CompanyEntity entity = companyRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Company not found with ID: " + id));
