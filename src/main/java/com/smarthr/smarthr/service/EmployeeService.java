@@ -1,10 +1,14 @@
 package com.smarthr.smarthr.service;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
@@ -15,6 +19,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.smarthr.smarthr.entity.AttendanceEntity;
 import com.smarthr.smarthr.entity.DefaultOnboardingTaskEntity;
 import com.smarthr.smarthr.entity.DepartmentEntity;
 import com.smarthr.smarthr.entity.EmployeeDetails;
@@ -24,6 +29,7 @@ import com.smarthr.smarthr.enumeration.EmployementStatus;
 import com.smarthr.smarthr.exception.InvalidCredentialsException;
 import com.smarthr.smarthr.exception.ResourceNotFoundException;
 import com.smarthr.smarthr.exception.UserAlreadyExistsException;
+import com.smarthr.smarthr.repository.AttendanceRepository;
 import com.smarthr.smarthr.repository.CompanyRepository;
 import com.smarthr.smarthr.repository.DefaultOnboardingTaskRepository;
 import com.smarthr.smarthr.repository.DepartmentRepository;
@@ -54,6 +60,7 @@ public class EmployeeService {
     private final OnboardingTaskRepository onboardingTaskRepository;
     private final DefaultOnboardingTaskRepository defaultOnboardingTaskRepository;
     private final CompanyRepository companyRepository;
+    private final AttendanceRepository attendanceRepository;
 
     /**
      * Authenticate user/admin by username and password.
@@ -363,7 +370,23 @@ public class EmployeeService {
         String username = authentication.getName();
         EmployeeDetails employee = employeeRepository.findByUsername(username)
                 .orElseThrow(() -> new ResourceNotFoundException("Employee not found with username: " + username));
-        return EmployeeResponse.fromEntity(employee, getOnboardingTasksForEmployee(employee.getId()));
+
+        LocalDateTime startOfDay = LocalDate.now().atStartOfDay();
+        LocalDateTime endOfDay = LocalDate.now().atTime(LocalTime.MAX);
+        List<AttendanceEntity> todayAttendances = attendanceRepository
+                .findByEmployeeIdAndClockInBetweenOrderByClockInDesc(employee.getId(), startOfDay, endOfDay);
+
+        boolean hasClockIn = !todayAttendances.isEmpty();
+        boolean hasClockOut = !todayAttendances.isEmpty() && todayAttendances.get(0).getClockOut() != null;
+
+        Optional<AttendanceEntity> activeSession = attendanceRepository
+                .findTopByEmployeeIdAndClockOutIsNullOrderByClockInDesc(employee.getId());
+        if (activeSession.isPresent()) {
+            hasClockIn = true;
+            hasClockOut = false;
+        }
+
+        return EmployeeResponse.fromEntity(employee, getOnboardingTasksForEmployee(employee.getId()), hasClockIn, hasClockOut);
     }
 }
 

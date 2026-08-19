@@ -76,4 +76,19 @@ class AuthControllerTest {
         assertNotNull(responseEntity.getBody());
         assertTrue(responseEntity.getBody().isSuccess());
     }
+
+    @Test
+    void testGetProfileInfoControllerEndpoint() {
+        mockEmployeeResponse.setHasClockIn(true);
+        mockEmployeeResponse.setHasClockOut(false);
+        when(employeeService.getProfileInfo()).thenReturn(mockEmployeeResponse);
+
+        ResponseEntity<ApiResponse<EmployeeResponse>> responseEntity = authController.getProfileInfo();
+
+        assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+        assertNotNull(responseEntity.getBody());
+        assertTrue(responseEntity.getBody().isSuccess());
+        assertTrue(responseEntity.getBody().getData().isHasClockIn());
+        assertFalse(responseEntity.getBody().getData().isHasClockOut());
+    }
 }

@@ -69,7 +69,7 @@ public class AttendanceService {
     public AttendanceResponse clockOut(ClockOutRequest request) {
         AttendanceEntity attendance = attendanceRepository
                 .findTopByEmployeeIdAndClockOutIsNullOrderByClockInDesc(request.getEmployeeId())
-                .orElseThrow(() -> new IllegalStateException("No active clock-in record found for employee ID: " + request.getEmployeeId()));
+                .orElseThrow(() -> new IllegalStateException("No active clock-in record found for employee ID: " + request.getEmployeeId() + "Please go Clock In First befoer you can go Clock Out"));
 
         LocalDateTime now = LocalDateTime.now();
         attendance.setClockOut(now);

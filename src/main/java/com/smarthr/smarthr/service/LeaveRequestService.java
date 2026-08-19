@@ -134,6 +134,7 @@ public class LeaveRequestService {
             leaveRequest.setRemarks(dto.getReason());
         }
 
+        //Get the approvalBy 
         leaveRequest.setStatus(dto.getStatus());
 
         // 5. Save entity

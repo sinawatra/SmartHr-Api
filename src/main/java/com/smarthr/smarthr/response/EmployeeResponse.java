@@ -28,6 +28,8 @@ public class EmployeeResponse {
     private String lastName;
     private String email;
     private String phoneNumber;
+    private boolean  hasClockIn;
+    private boolean hasClockOut;
     private EmployementStatus employeeStatus;
     private LocalDate hiredate;
     private LocalDate probationEndDate;
@@ -42,6 +44,10 @@ public class EmployeeResponse {
     }
 
     public static EmployeeResponse fromEntity(EmployeeDetails employee, List<OnboardingTaskResponse> onboardingTasks) {
+        return fromEntity(employee, onboardingTasks, false, false);
+    }
+
+    public static EmployeeResponse fromEntity(EmployeeDetails employee, List<OnboardingTaskResponse> onboardingTasks, boolean hasClockIn, boolean hasClockOut) {
         return EmployeeResponse.builder()
                 .id(employee.getId())
                 .username(employee.getUsername())
@@ -54,6 +60,8 @@ public class EmployeeResponse {
                 .lastName(employee.getLastName())
                 .email(employee.getEmail())
                 .phoneNumber(employee.getPhoneNumber())
+                .hasClockIn(hasClockIn)
+                .hasClockOut(hasClockOut)
                 .employeeStatus(employee.getEmployeeStatus())
                 .hiredate(employee.getHiredate())
                 .probationEndDate(employee.getProbationEndDate())

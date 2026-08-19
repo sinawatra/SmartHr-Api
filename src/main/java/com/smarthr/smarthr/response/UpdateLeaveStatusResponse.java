@@ -28,6 +28,7 @@ import lombok.Setter;
 public class UpdateLeaveStatusResponse {
     private LeaveStatus status;
     private String reason; // optional: e.g., rejection reason
+    private String approvedBy;
 
 
 }

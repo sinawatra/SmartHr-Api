@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -17,6 +18,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.smarthr.smarthr.entity.EmployeeDetails;
@@ -57,6 +61,9 @@ class EmployeeServiceTest {
 
     @Mock
     private com.smarthr.smarthr.repository.CompanyRepository companyRepository;
+
+    @Mock
+    private com.smarthr.smarthr.repository.AttendanceRepository attendanceRepository;
 
     @InjectMocks
     private EmployeeService employeeService;
@@ -286,5 +293,69 @@ class EmployeeServiceTest {
         assertEquals(10, result.getPageSize());
         assertEquals(2, result.getTotalElements());
         assertEquals(1, result.getTotalPages());
+    }
+
+    @Test
+    void testGetProfileInfo_WithClockInAndClockOut() {
+        Authentication authentication = mock(Authentication.class);
+        SecurityContext securityContext = mock(SecurityContext.class);
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        when(authentication.isAuthenticated()).thenReturn(true);
+        when(authentication.getName()).thenReturn("john_doe");
+        SecurityContextHolder.setContext(securityContext);
+
+        when(employeeRepository.findByUsername("john_doe")).thenReturn(Optional.of(mockUser));
+
+        com.smarthr.smarthr.entity.AttendanceEntity attendance = com.smarthr.smarthr.entity.AttendanceEntity.builder()
+                .id(1L)
+                .employee(mockUser)
+                .clockIn(LocalDateTime.now().minusHours(8))
+                .clockOut(LocalDateTime.now())
+                .status("COMPLETED")
+                .build();
+
+        when(attendanceRepository.findByEmployeeIdAndClockInBetweenOrderByClockInDesc(any(), any(), any()))
+                .thenReturn(List.of(attendance));
+        when(attendanceRepository.findTopByEmployeeIdAndClockOutIsNullOrderByClockInDesc(2L))
+                .thenReturn(Optional.empty());
+
+        EmployeeResponse response = employeeService.getProfileInfo();
+
+        assertNotNull(response);
+        assertEquals("john_doe", response.getUsername());
+        assertTrue(response.isHasClockIn());
+        assertTrue(response.isHasClockOut());
+    }
+
+    @Test
+    void testGetProfileInfo_WithActiveClockIn() {
+        Authentication authentication = mock(Authentication.class);
+        SecurityContext securityContext = mock(SecurityContext.class);
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        when(authentication.isAuthenticated()).thenReturn(true);
+        when(authentication.getName()).thenReturn("john_doe");
+        SecurityContextHolder.setContext(securityContext);
+
+        when(employeeRepository.findByUsername("john_doe")).thenReturn(Optional.of(mockUser));
+
+        com.smarthr.smarthr.entity.AttendanceEntity activeAttendance = com.smarthr.smarthr.entity.AttendanceEntity.builder()
+                .id(1L)
+                .employee(mockUser)
+                .clockIn(LocalDateTime.now().minusHours(2))
+                .clockOut(null)
+                .status("PRESENT")
+                .build();
+
+        when(attendanceRepository.findByEmployeeIdAndClockInBetweenOrderByClockInDesc(any(), any(), any()))
+                .thenReturn(List.of(activeAttendance));
+        when(attendanceRepository.findTopByEmployeeIdAndClockOutIsNullOrderByClockInDesc(2L))
+                .thenReturn(Optional.of(activeAttendance));
+
+        EmployeeResponse response = employeeService.getProfileInfo();
+
+        assertNotNull(response);
+        assertEquals("john_doe", response.getUsername());
+        assertTrue(response.isHasClockIn());
+        assertFalse(response.isHasClockOut());
     }
 }
