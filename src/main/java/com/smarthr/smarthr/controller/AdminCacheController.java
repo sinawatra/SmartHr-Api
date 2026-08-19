@@ -14,12 +14,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  *
  * @author root
  */
 @RestController
+@Slf4j
     @RequestMapping("/api/admin/cache")
     @RequiredArgsConstructor
     public class AdminCacheController {
@@ -40,6 +42,7 @@ import lombok.RequiredArgsConstructor;
         // Clear ALL caches in Redis (e.g., DELETE /api/admin/cache/clear-all)
         @DeleteMapping("/clear-all")
         public ResponseEntity<String> clearAllCaches() {
+            log.info("Clear ALL caches in Redis ");
             for (String name : cacheManager.getCacheNames()) {
                 Cache cache = cacheManager.getCache(name);
                 if (cache != null) {

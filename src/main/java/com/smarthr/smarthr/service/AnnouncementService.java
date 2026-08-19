@@ -106,6 +106,7 @@ public class AnnouncementService {
      * Retrieve announcements with pagination.
      */
     @Transactional(readOnly = true)
+    @Cacheable(value = "announcements", key = "'page:' + #pageable.pageNumber + ':size:' + #pageable.pageSize + ':sort:' + #pageable.sort")
     public PagedResponse<AnnouncementResponse> getAllAnnouncements(Pageable pageable) {
         Page<AnnouncementEntity> page = announcementRepository.findAll(pageable);
         List<AnnouncementResponse> content = page.getContent().stream()

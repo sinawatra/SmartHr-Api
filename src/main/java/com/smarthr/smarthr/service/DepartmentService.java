@@ -64,6 +64,7 @@ public class DepartmentService {
     }
 
     @Transactional(readOnly = true)
+    @Cacheable(value = "departments", key = "'page:' + #pageable.pageNumber + ':size:' + #pageable.pageSize + ':sort:' + #pageable.sort")
     public PagedResponse<DepartmentResponse> getAllDepartments(Pageable pageable) {
         Page<DepartmentEntity> page = departmentRepository.findAll(pageable);
         List<DepartmentResponse> content = page.getContent()

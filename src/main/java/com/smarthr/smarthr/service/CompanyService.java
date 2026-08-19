@@ -18,8 +18,10 @@ import com.smarthr.smarthr.response.DepartmentResponse;
 import com.smarthr.smarthr.response.PagedResponse;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class CompanyService {
 
@@ -60,6 +62,7 @@ public class CompanyService {
     @Transactional(readOnly = true)
     @Cacheable(value = "companies", key = "'all'")
     public List<CompanyResponse> getAllCompanies() {
+        log.info(">>> Cache Miss: Fetching all companies list directly from DATABASE <<<");
         return companyRepository.findAll()
                 .stream()
                 .map(this::mapToResponse)
@@ -67,7 +70,9 @@ public class CompanyService {
     }
 
     @Transactional(readOnly = true)
+    @Cacheable(value = "companies", key = "'page:' + #pageable.pageNumber + ':size:' + #pageable.pageSize + ':sort:' + #pageable.sort")
     public PagedResponse<CompanyResponse> getAllCompanies(Pageable pageable) {
+        log.info(">>> Cache Miss: Fetching paged companies directly from DATABASE (page={}, size={}) <<<", pageable.getPageNumber(), pageable.getPageSize());
         Page<CompanyEntity> page = companyRepository.findAll(pageable);
         List<CompanyResponse> content = page.getContent()
                 .stream()
@@ -79,6 +84,7 @@ public class CompanyService {
     @Transactional(readOnly = true)
     @Cacheable(value = "companies", key = "#id")
     public CompanyResponse getCompanyById(Long id) {
+        log.info(">>> Cache Miss: Fetching company ID {} directly from DATABASE <<<", id);
         CompanyEntity entity = companyRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Company not found with ID: " + id));
         return mapToResponse(entity);

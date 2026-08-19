@@ -92,6 +92,7 @@ public class RoleService {
      * Get roles with pagination.
      */
     @Transactional(readOnly = true)
+    @Cacheable(value = "roles", key = "'page:' + #pageable.pageNumber + ':size:' + #pageable.pageSize + ':sort:' + #pageable.sort")
     public PagedResponse<RoleResponse> getAllRoles(Pageable pageable) {
         Page<RoleEntity> page = roleRepository.findAll(pageable);
         List<RoleResponse> content = page.getContent()
