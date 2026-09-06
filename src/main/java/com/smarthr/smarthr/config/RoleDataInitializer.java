@@ -19,7 +19,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class RoleDataInitializer implements CommandLineRunner {
 
-    private static final List<String> DEFAULT_ROLES = List.of("USER", "ADMIN");
+    private static final List<String> DEFAULT_ROLES = List.of("USER", "ADMIN", "LINE_MANAGER");
 
     private final RoleRepository roleRepository;
 
