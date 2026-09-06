@@ -4,9 +4,9 @@ spring:
   profiles:
     active: qa
   datasource:
-    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://172.24.100.101:5432/postgres}
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/postgres}
     username: ${SPRING_DATASOURCE_USERNAME:postgres}
-    password: ${SPRING_DATASOURCE_PASSWORD:postgres}
+    password: ${SPRING_DATASOURCE_PASSWORD:$Rith$9990}
   jpa:
     hibernate:
       ddl-auto: update

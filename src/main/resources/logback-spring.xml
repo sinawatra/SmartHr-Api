@@ -16,11 +16,17 @@
         </appender>
     </springProfile>
 
-    <root level="INFO">
-        <appender-ref ref="CONSOLE"/>
-        <springProfile name="logstash">
+    <springProfile name="!logstash">
+        <root level="INFO">
+            <appender-ref ref="CONSOLE"/>
+        </root>
+    </springProfile>
+
+    <springProfile name="logstash">
+        <root level="INFO">
+            <appender-ref ref="CONSOLE"/>
             <appender-ref ref="LOGSTASH"/>
-        </springProfile>
-    </root>
+        </root>
+    </springProfile>
 
 </configuration>
