@@ -38,6 +38,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.DELETE, "/api/v1/employees/**").hasAnyAuthority("ADMIN", "HR")
                 .requestMatchers("/api/v1/employees/**").authenticated()
                 .requestMatchers("/api/v1/attendance/**").authenticated()
+                .requestMatchers("/api/v1/dashboard/**").authenticated()
                 .anyRequest().permitAll()
             )
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
