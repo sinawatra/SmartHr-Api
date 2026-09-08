@@ -1,0 +1,1948 @@
+{
+  "info": {
+    "_postman_id": "4ebff338-c92c-4ac2-af9a-75533a41a838",
+    "name": "SmartHr",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "48985974",
+    "_collection_link": "https://go.postman.co/collection/48985974-4ebff338-c92c-4ac2-af9a-75533a41a838?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "Admin",
+      "item": [
+        {
+          "name": "Employee",
+          "item": [
+            {
+              "name": "Get Employees",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{adminToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/employees",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "employees"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Create Employee",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{adminToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"username\": \"Testing\",\r\n  \"password\": \"$Rith$9990\",\r\n  \"roleName\": \"USER\",\r\n  \"roleId\": 2,\r\n//   \"companyId\": 1,\r\n  \"departmentId\": 1,\r\n  \"managerId\": 1,\r\n  \"employeeCode\": \"EMP-2026-0089\",\r\n  \"firstName\": \"Test\",\r\n  \"lastName\": \"Test\",\r\n  \"email\": \"testing@gmail.com\",\r\n  \"phoneNumber\": \"+1-555-0199\",\r\n  \"employeeStatus\": \"Probation\",\r\n  \"hiredate\": \"2026-08-01\",\r\n  \"probationEndDate\": \"2026-11-01\",\r\n  \"profileImage\": \"https://cdn.example.com/profiles/johndoe.jpg\",\r\n  \"endDate\": null\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/employees",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "employees"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Update Employee",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJTaWF3YXRyYSBSaXRoIiwicm9sZSI6IkFETUlOIiwiaWF0IjoxNzg1ODI0MjkwLCJleHAiOjE3ODU5MTA2OTB9.AR-JB-bv6JLAlhuAUgtQHljqOaDwXBC2BbyGc-EpgUoYKFCicnH2KRpQUdni9cpG0WABXCpFgL_HqWnqp4oh6w",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{BaseUrl}}/api/employees/6",
+                  "host": [
+                    "{{BaseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "employees",
+                    "6"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Update Employee",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJTaWF3YXRyYSBSaXRoIiwicm9sZSI6IkFETUlOIiwiaWF0IjoxNzg1ODI0MjkwLCJleHAiOjE3ODU5MTA2OTB9.AR-JB-bv6JLAlhuAUgtQHljqOaDwXBC2BbyGc-EpgUoYKFCicnH2KRpQUdni9cpG0WABXCpFgL_HqWnqp4oh6w",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "PUT",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n//   \"username\": \"Siawatra Rith\",\r\n//   \"password\": \"$Rith$9990\",\r\n//   \"role\": \"USER\",\r\n//   \"roleName\": \"ROLE_EMPLOYEE\",\r\n//   \"roleId\": 1,\r\n//   \"companyId\": 1,\r\n//   \"departmentId\": 5,\r\n//   \"managerId\": 12,\r\n//   \"employeeCode\": \"EMP-2026-0089\",\r\n//   \"firstName\": \"John\",\r\n//   \"lastName\": \"Doe\",\r\n//   \"email\": \"john.doe@company.com\",\r\n//   \"phoneNumber\": \"+1-555-0199\",\r\n  \"employeeStatus\": \"ACTIVE\",\r\n//   \"hiredate\": \"2026-08-01\"\r\n//   \"probationEndDate\": \"2026-11-01\",\r\n//   \"profileImage\": \"https://cdn.example.com/profiles/johndoe.jpg\",\r\n//   \"endDate\": null\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{BaseUrl}}/api/employees/6",
+                  "host": [
+                    "{{BaseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "employees",
+                    "6"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Create Admin",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"username\": \"Sinawatra Rith\",\r\n  \"password\": \"$Rith$9990\",\r\n  \"roleName\": \"ADMIN\",\r\n  \"roleId\": 1,\r\n  \"companyId\": 1,\r\n  \"departmentId\": 5,\r\n  \"managerId\": 12,\r\n  \"employeeCode\": \"EMP-2026-0089\",\r\n  \"firstName\": \"Sinawatra\",\r\n  \"lastName\": \"Rith\",\r\n  \"email\": \"watrasinarith@gmail.com\",\r\n  \"phoneNumber\": \"+85577889990\",\r\n  \"employeeStatus\": \"ACTIVE\",\r\n  \"hiredate\": \"2026-08-01\",\r\n  \"probationEndDate\": \"2026-11-01\",\r\n  \"profileImage\": \"https://cdn.example.com/profiles/johndoe.jpg\",\r\n  \"endDate\": null\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{BaseUrl}}/api/auth/init-admin",
+                  "host": [
+                    "{{BaseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "auth",
+                    "init-admin"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Get Employment Status Enum",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{adminToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": ""
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/employees/employment-statuses",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "employees",
+                    "employment-statuses"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ],
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {},
+                "exec": [
+                  ""
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {},
+                "exec": [
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Department",
+          "item": [
+            {
+              "name": "Update Department",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJTaWF3YXRyYSBSaXRoIiwicm9sZSI6IkFETUlOIiwiaWF0IjoxNzg1ODI5ODg1LCJleHAiOjE3ODU5MTYyODV9.leEk-zlvu_VOexX9p0fuq8I4OOZUi4NVQQR_n27Y7bZE_ia8DAUbyspn2mkgINX7EEhVEMdnIAE-LPVPkJO0og",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "PUT",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "//name \r\n//description\r\n//companyId",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{BaseUrl}}/api/v1/departments/id",
+                  "host": [
+                    "{{BaseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "departments",
+                    "id"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Get Deparment By Id",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "method": "GET",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"name\": \"IT Deparment\", \r\n    \"description\" : \"All Information Technology related\"\r\n    // \"companyId\" : \"\"\r\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/departments",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "departments"
+                  ],
+                  "query": [
+                    {
+                      "key": "size",
+                      "value": "1",
+                      "disabled": true
+                    },
+                    {
+                      "key": "page",
+                      "value": null,
+                      "disabled": true
+                    },
+                    {
+                      "key": "sortBy",
+                      "value": null,
+                      "disabled": true
+                    },
+                    {
+                      "key": "sortDir",
+                      "value": "desc",
+                      "disabled": true
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Create Department",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"name\": \"IT Deparment\", \r\n    \"description\" : \"All Information Technology related\"\r\n    // \"companyId\" : \"\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/departments",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "departments"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Department Get ALL",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/departments",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "departments"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Company",
+          "item": [
+            {
+              "name": "Edit",
+              "request": {
+                "method": "PUT",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"employeeId\" : \"\",\r\n    \"notes\" : \"\"\r\n}"
+                },
+                "url": {
+                  "raw": "{{BaseUrl}}/api/v1/companies/{id}  ",
+                  "host": [
+                    "{{BaseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "companies",
+                    "{id}  "
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Delete",
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"employeeId\" : \"\",\r\n    \"notes\" : \"\"\r\n}"
+                },
+                "url": {
+                  "raw": "{{BaseUrl}}/api/v1/companies/{id}",
+                  "host": [
+                    "{{BaseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "companies",
+                    "{id}"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Get Company By Id",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{BaseUrl}}/api/v1/companies/id",
+                  "host": [
+                    "{{BaseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "companies",
+                    "id"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Get All Companies",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{adminToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": ""
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/companies",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "companies"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Create Company",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJTaWF3YXRyYSBSaXRoIiwicm9sZSI6IkFETUlOIiwiaWF0IjoxNzg1ODI5NTcwLCJleHAiOjE3ODU5MTU5NzB9.ZdQ0By1Tof4b2Uei0yBAe_8VaM9DZAukYyWzVyKxl-FHiQpmXrjwCAu4UIH2pYHY2Fu1cIs-UaeCSEmgVDR84w",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"name\" : \"Acleda\",\r\n    \"code\" : \"Acleda\",\r\n    \"address\" : \"Phnom Penh Sensok\",\r\n    \"phone\" : \"+85577889990\",\r\n    \"email\" : \"acleda@gmail.com\",\r\n    \"latitute\" : \"007\",\r\n    \"longitude\" : \"007\",\r\n    \"telegramChatId\" : \"-5557264907\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/companies",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "companies"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Role",
+          "item": [
+            {
+              "name": "Get All Role",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/roles",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "roles"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Create role",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"name\" : \"ADMIN\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/roles",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "roles"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Get role details by Name",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "/api/v1/roles/name/{name}",
+                  "path": [
+                    "api",
+                    "v1",
+                    "roles",
+                    "name",
+                    "{name}"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Delete role by ID",
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "/api/v1/roles/{id}",
+                  "path": [
+                    "api",
+                    "v1",
+                    "roles",
+                    "{id}"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Get role details by ID",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "/api/v1/roles/{id}",
+                  "path": [
+                    "api",
+                    "v1",
+                    "roles",
+                    "{id}"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Update role by ID",
+              "request": {
+                "method": "PUT",
+                "header": [],
+                "url": {
+                  "raw": "/api/v1/roles/{id} ",
+                  "path": [
+                    "api",
+                    "v1",
+                    "roles",
+                    "{id} "
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "OnboardingTasks",
+          "item": [
+            {
+              "name": "Create Onboarding Task",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJTaW5hd2F0cmEgUml0aCIsInJvbGUiOiJBRE1JTiIsImlhdCI6MTc4NTkwMjU2MiwiZXhwIjoxNzg1OTg4OTYyfQ.iWkZQkMEm9NSu5VANtv5lurorTd2P2JpGAHZFxNTnrGlNO4mZBg892ex57jADeLuDp43YcMju3a7hyw1nzUHgA",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"taskName\": \"f\",\r\n    \"description\": \"f\"}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/default-onboarding-tasks",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "default-onboarding-tasks"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Get all default onboarding tasks",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/default-onboarding-tasks",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "default-onboarding-tasks"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Get all default onboarding tasks By Id",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/default-onboarding-tasks/{id}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "default-onboarding-tasks",
+                    "{id}"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Update By Id",
+              "request": {
+                "method": "PUT",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"taskName\": \"Health Checkup Certificate\",\r\n    \"description\": \"Health Checkup Certificate\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/default-onboarding-tasks/2",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "default-onboarding-tasks",
+                    "2"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Delete By Id",
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/default-onboarding-tasks/{id}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "default-onboarding-tasks",
+                    "{id}"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Onboarding Task Check List",
+          "item": [
+            {
+              "name": "Get Probation Tasks Per Employee",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/onboarding-tasks/employee/{employeeId} ",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "onboarding-tasks",
+                    "employee",
+                    "{employeeId} "
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Tick Probation Check List",
+              "request": {
+                "method": "PATCH",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"completed\" : true\r\n\r\n} ",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/onboarding-tasks/{taskId}/complete",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "onboarding-tasks",
+                    "{taskId}",
+                    "complete"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Leave",
+          "item": [
+            {
+              "name": "Get all leave statuses enum",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/leave-requests/statuses",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "leave-requests",
+                    "statuses"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Get All Leave",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/leave-requests?page&size&sortBy&sortDir",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "leave-requests"
+                  ],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": null
+                    },
+                    {
+                      "key": "size",
+                      "value": null
+                    },
+                    {
+                      "key": "sortBy",
+                      "value": null
+                    },
+                    {
+                      "key": "sortDir",
+                      "value": null
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Reject or Approve Leave",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{adminToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "PUT",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"status\": \"REJECTED\"\r\n//   \"reason\" : \" \"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/leave-requests/2/status",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "leave-requests",
+                    "2",
+                    "status"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Get All Leave Type",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{adminToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/leave-requests/leave-types",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "leave-requests",
+                    "leave-types"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Create Leave Types",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{adminToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"leaveTypeName\": \"Birthday Leave\",\r\n    \"maxDays\": 1,\r\n    \"leaveTypeDescription\": \"Birthday Leave\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/leave-requests/leave-types",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "leave-requests",
+                    "leave-types"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Announcement",
+          "item": [
+            {
+              "name": "getAllAnnouncements",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{adminToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"username\": \"TestingTH\",\r\n  \"password\": \"123456\",\r\n  \"roleName\": \"ADMIN\",\r\n  \"roleId\": 2,\r\n  \"companyId\": 1,\r\n  \"departmentId\": 1,\r\n  \"managerId\": 1,\r\n  \"employeeCode\": \"EMP-2026-0089\",\r\n  \"firstName\": \"Test\",\r\n  \"lastName\": \"Test\",\r\n  \"email\": \"testingTH@gmail.com\",\r\n  \"phoneNumber\": \"+1-555-0199\",\r\n  \"employeeStatus\": \"Probation\",\r\n  \"hiredate\": \"2026-08-01\",\r\n  \"probationEndDate\": \"2026-11-01\",\r\n  \"profileImage\": \"https://cdn.example.com/profiles/johndoe.jpg\",\r\n  \"endDate\": null\r\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/announcements",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "announcements"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Push Existing Announcement to Telegram Channel",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{adminToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/announcements/14/push",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "announcements",
+                    "14",
+                    "push"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "getAllAnnouncements By Id",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/announcements/{id}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "announcements",
+                    "{id}"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Create announcement",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{adminToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"title\" : \"Hello ABA\",\r\n  \"description\" : \"Testing\",\r\n  \"companyId\" : 2\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/announcements",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "announcements"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Update Announcement",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{adminToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "PUT",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"title\" : \"\",\r\n  \"description\" : \"\"\r\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/announcements/{id}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "announcements",
+                    "{id}"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Delete Announcement",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{adminToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "DELETE",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": ""
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/announcements/{id}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "announcements",
+                    "{id}"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Cache",
+          "item": [
+            {
+              "name": "Clear Cache",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{adminToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "DELETE",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": ""
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/admin/cache/clear-all",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "admin",
+                    "cache",
+                    "clear-all"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Dashboard",
+          "item": [
+            {
+              "name": "Get Dashboard Api",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{adminToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": ""
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/dashboard",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "dashboard"
+                  ],
+                  "query": [
+                    {
+                      "key": "size",
+                      "value": "1",
+                      "disabled": true
+                    },
+                    {
+                      "key": "page",
+                      "value": null,
+                      "disabled": true
+                    },
+                    {
+                      "key": "sortBy",
+                      "value": null,
+                      "disabled": true
+                    },
+                    {
+                      "key": "sortDir",
+                      "value": "desc",
+                      "disabled": true
+                    }
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// Parse the JSON response body\r",
+                  "const response = pm.response.json();\r",
+                  "\r",
+                  "// Verify the response was successful and extract the token\r",
+                  "if (response.success && response.data && response.data.token) {\r",
+                  "    \r",
+                  "    // Save token to an Environment Variable\r",
+                  "    pm.environment.set(\"adminToken\", response.data.token);\r",
+                  "    \r",
+                  "    console.log(\"adminToken saved successfully!\");\r",
+                  "} else {\r",
+                  "    console.error(\"Could not find token in response:\", response.message);\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"username\" : \"Sinawatra Rith\",\r\n    \"password\" : \"$Rith$9990\"\r\n}\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "User",
+      "item": [
+        {
+          "name": "Attendance",
+          "item": [
+            {
+              "name": "Clock In",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{userToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"employeeId\" : 2,\r\n    \"notes\" : \"\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/attendance/clock-in",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "attendance",
+                    "clock-in"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Clock Out",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"employeeId\" : \"\",\r\n    \"notes\" : \"\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/attendance/clock-out",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "attendance",
+                    "clock-out"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Attendance History",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "method": "GET",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"startDate\": \"2026-08-01\",\r\n    \"endDate\": \"2026-08-31\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{BaseUrl}}/api/v1/attendance/history/7?size=1&page=1&sortBy&sortDir",
+                  "host": [
+                    "{{BaseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "attendance",
+                    "history",
+                    "7"
+                  ],
+                  "query": [
+                    {
+                      "key": "size",
+                      "value": "1"
+                    },
+                    {
+                      "key": "page",
+                      "value": "1"
+                    },
+                    {
+                      "key": "sortBy",
+                      "value": null
+                    },
+                    {
+                      "key": "sortDir",
+                      "value": null,
+                      "type": "text"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Leave",
+          "item": [
+            {
+              "name": "My Leave Request",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{userToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/leave-requests/my-requests",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "leave-requests",
+                    "my-requests"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Get My Leave Amount",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/leave-requests/balance",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "leave-requests",
+                    "balance"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Submit Leave",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{userToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"leaveTypeId\": 1,\r\n    \"startDate\" : \"2026-12-12\", //YYYY-MM-DD\r\n    \"endDate\" : \"2026-12-26\",\r\n    \"reason\" : \"Sick\"\r\n\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/leave-requests",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "leave-requests"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Submit Leave Form Data",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJTaW5hd2F0cmEgUml0aCIsInJvbGUiOiJBRE1JTiIsImlhdCI6MTc4Njk1NDQ2NywiZXhwIjoxNzg3MDQwODY3fQ.2sXNY1kiyfezom-qy_8mVZgsdOjrZU1LHP4hdQ1bPrTmfDAgK-CC9WX_bNNubgHEWjSt1I-7ha1N94hEpp1eqQ",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": " {\"leaveTypeId\": 1, \"startDate\": \"2026-09-01\", \"endDate\": \"2026-09-05\", \"reason\": \"Sick leave\"}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/leave-requests",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "leave-requests"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Get Pending Approval For Line Manager",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{userToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/leave-requests/pending-approvals",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "leave-requests",
+                    "pending-approvals"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Company",
+          "item": [
+            {
+              "name": "Get Company",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/companies",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "companies"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Get Company By Id",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/companies/id",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "companies",
+                    "id"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// Parse the JSON response body\r",
+                  "const response = pm.response.json();\r",
+                  "\r",
+                  "// Verify the response was successful and extract the token\r",
+                  "if (response.success && response.data && response.data.token) {\r",
+                  "    \r",
+                  "    // Save token to an Environment Variable\r",
+                  "    pm.environment.set(\"userToken\", response.data.token);\r",
+                  "    \r",
+                  "    console.log(\"userToken saved successfully!\");\r",
+                  "} else {\r",
+                  "    console.error(\"Could not find token in response:\", response.message);\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"username\": \"Testing\",\r\n    \"password\": \"$Rith$9990\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Profile Info",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/profile",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "profile"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Check Health",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"completed\" : true\r\n\r\n} "
+            },
+            "url": {
+              "raw": "{{baseUrl}}/actuator/health",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "actuator",
+                "health"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Testing",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ3YXRyYSIsInVzZXJJZCI6ODMxNSwidHlwZSI6IkFDQ0VTUyIsImlhdCI6MTc4ODMyMzIzOCwiZXhwIjoxNzg4MzI2ODM4fQ.SjA3NlEmEGPiyyY7x9mvtwR-sRtI51CDgqHwSjeHqChOobOOMtBHjZCnkfj9Gabb-PYBLEyYxOyKXhIlAEQfEg",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "files",
+              "type": "file",
+              "uuid": "f7f84f37-d8aa-46b2-b96e-396090dbb7c6",
+              "src": "postman-cloud:///1f19a15b-0fb8-43a0-9b15-e3a7760a181d"
+            },
+            {
+              "key": "startDate",
+              "value": "2026-09-02",
+              "type": "text",
+              "uuid": "960daa9b-31ab-4306-8563-c80baa6c3b18"
+            },
+            {
+              "key": "endDate",
+              "value": "2026-09-03",
+              "type": "text",
+              "uuid": "3f6676fd-fd15-43e3-a582-8d26645392ed"
+            },
+            {
+              "key": "reason",
+              "value": "Sick",
+              "type": "text",
+              "uuid": "d71fd044-f238-4475-a485-0cc2679ebb4e"
+            },
+            {
+              "key": "attendance_letter_request_type",
+              "value": "I love you",
+              "type": "text",
+              "uuid": "e7312471-da3b-46d9-a284-0a04d3190c48"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/attendance-letter-requests",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "attendance-letter-requests"
+          ]
+        }
+      },
+      "response": []
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://smarthr-api-zfhg.onrender.com"
+    },
+    {
+      "key": "adminToken",
+      "value": "",
+      "type": "string"
+    }
+  ]
+}

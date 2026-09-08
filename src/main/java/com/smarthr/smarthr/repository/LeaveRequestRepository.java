@@ -10,6 +10,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.smarthr.smarthr.entity.LeaveRequestEntity;
+import com.smarthr.smarthr.enumeration.LeaveStatus;
 
 /**
  *
@@ -18,4 +19,11 @@ import com.smarthr.smarthr.entity.LeaveRequestEntity;
 public interface LeaveRequestRepository extends JpaRepository<LeaveRequestEntity, Long> {
     java.util.List<LeaveRequestEntity> findByEmployeeId(Long employeeId);
     Page<LeaveRequestEntity> findByEmployeeId(Long employeeId, Pageable pageable);
+
+    // Requests raised by the direct reports of a given manager, filtered by status
+    // (used by the LINE_MANAGER approval queue).
+    Page<LeaveRequestEntity> findByEmployee_ManagerIdAndStatus(Integer managerId, LeaveStatus status, Pageable pageable);
+
+    // All requests in a given status (ADMIN-wide approval queue).
+    Page<LeaveRequestEntity> findByStatus(LeaveStatus status, Pageable pageable);
 }

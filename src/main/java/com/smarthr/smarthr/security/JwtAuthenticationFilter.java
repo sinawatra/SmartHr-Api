@@ -1,7 +1,9 @@
 package com.smarthr.smarthr.security;
 
 import java.io.IOException;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -34,9 +36,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             String rawRole = (role != null && !role.isBlank()) ? role.toUpperCase() : "USER";
 
-            List<SimpleGrantedAuthority> authorities = List.of(
-                new SimpleGrantedAuthority(rawRole)
-            );
+            // Elevated roles also carry the baseline USER authority so that a
+            // LINE_MANAGER or ADMIN can still use the normal employee endpoints
+            // (e.g. submitting and viewing their own leave requests).
+            Set<String> grantedRoles = new LinkedHashSet<>();
+            grantedRoles.add(rawRole);
+            if (rawRole.equals("ADMIN") || rawRole.equals("LINE_MANAGER")) {
+                grantedRoles.add("USER");
+            }
+
+            List<SimpleGrantedAuthority> authorities = grantedRoles.stream()
+                .map(SimpleGrantedAuthority::new)
+                .toList();
             UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                     username, null, authorities);
             authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));

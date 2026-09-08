@@ -11,15 +11,15 @@ package com.smarthr.smarthr.entity;
  */
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Entity
 @Table(name = "leave_types")
-@Getter             
-@Setter             
-@NoArgsConstructor  
+@Getter
+@Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class LeaveTypeEntity {
 
     @Id

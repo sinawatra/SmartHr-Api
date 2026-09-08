@@ -32,6 +32,7 @@ import com.smarthr.smarthr.request.LeaveTypesRequest;
 import com.smarthr.smarthr.request.UpdateLeaveRequest;
 import com.smarthr.smarthr.response.ApiResponse;
 import com.smarthr.smarthr.response.CreateLeaveTypeResponse;
+import com.smarthr.smarthr.response.LeaveBalanceResponse;
 import com.smarthr.smarthr.response.LeaveRequestResponse;
 import com.smarthr.smarthr.response.PagedResponse;
 import com.smarthr.smarthr.response.UpdateLeaveStatusResponse;
@@ -88,7 +89,32 @@ public class LeaveRequestController {
         return ResponseEntity.ok(ApiResponse.success("My leave requests retrieved successfully", response));
     }
 
-    // 3. ONLY ADMINs can approve or reject leave requests
+    // 2b. Any logged-in user can view their own leave balance (entitlement minus
+    //     approved and pending days) for every leave type
+    @GetMapping("/balance")
+    @PreAuthorize("hasAnyAuthority('USER', 'ADMIN', 'LINE_MANAGER')")
+    public ResponseEntity<ApiResponse<List<LeaveBalanceResponse>>> getMyLeaveBalance() {
+        List<LeaveBalanceResponse> balance = leaveRequestService.getLeaveBalanceForCurrentUser();
+        return ResponseEntity.ok(ApiResponse.success("Leave balance retrieved successfully", balance));
+    }
+
+    // 2c. A line manager sees leave requests from their direct reports that are
+    //     awaiting a decision; an ADMIN sees every pending request
+    @GetMapping("/pending-approvals")
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'LINE_MANAGER')")
+    public ResponseEntity<ApiResponse<PagedResponse<LeaveRequestResponse>>> getPendingApprovals(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "id") String sortBy,
+            @RequestParam(defaultValue = "desc") String sortDir) {
+        Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+        Pageable pageable = PageRequest.of(page, size, sort);
+        PagedResponse<LeaveRequestResponse> response = leaveRequestService.getPendingApprovalsForCurrentManager(pageable);
+
+        return ResponseEntity.ok(ApiResponse.success("Pending leave approvals retrieved successfully", response));
+    }
+
+    // 3. A line manager (for their reports) or an ADMIN can approve or reject leave requests
     @PutMapping("/{id}/status")
     @PreAuthorize("hasAnyAuthority('ADMIN', 'LINE_MANAGER')")
     public ResponseEntity<ApiResponse<UpdateLeaveStatusResponse>> updateStatus(
