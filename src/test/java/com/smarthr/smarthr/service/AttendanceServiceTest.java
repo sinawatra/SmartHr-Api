@@ -108,6 +108,58 @@ class AttendanceServiceTest {
     }
 
     @Test
+    void testClockIn_AlreadyClockedInToday() {
+        ClockInRequest request = ClockInRequest.builder()
+                .employeeId(1L)
+                .build();
+
+        when(employeeRepository.findById(1L)).thenReturn(Optional.of(mockEmployee));
+        when(attendanceRepository.findTopByEmployeeIdAndClockOutIsNullOrderByClockInDesc(1L))
+                .thenReturn(Optional.empty());
+        when(attendanceRepository.existsByEmployeeIdAndClockInBetween(eq(1L), any(), any()))
+                .thenReturn(true);
+
+        IllegalStateException exception = assertThrows(IllegalStateException.class,
+                () -> attendanceService.clockIn(request));
+
+        assertTrue(exception.getMessage().contains("already clocked in today"));
+        verify(attendanceRepository, never()).save(any());
+    }
+
+    @Test
+    void testClockIn_PreviousDayOpenSession_AllowsNewClockIn() {
+        // Employee forgot to clock out yesterday; the stale session must not block today's clock-in.
+        AttendanceEntity staleSession = AttendanceEntity.builder()
+                .id(99L)
+                .employee(mockEmployee)
+                .clockIn(LocalDateTime.now().minusDays(1))
+                .status("PRESENT")
+                .build();
+
+        ClockInRequest request = ClockInRequest.builder()
+                .employeeId(1L)
+                .build();
+
+        when(employeeRepository.findById(1L)).thenReturn(Optional.of(mockEmployee));
+        when(attendanceRepository.findTopByEmployeeIdAndClockOutIsNullOrderByClockInDesc(1L))
+                .thenReturn(Optional.of(staleSession));
+        when(attendanceRepository.existsByEmployeeIdAndClockInBetween(eq(1L), any(), any()))
+                .thenReturn(false);
+        when(attendanceRepository.save(any(AttendanceEntity.class))).thenAnswer(invocation -> {
+            AttendanceEntity entity = invocation.getArgument(0);
+            entity.setId(102L);
+            return entity;
+        });
+
+        AttendanceResponse response = attendanceService.clockIn(request);
+
+        assertNotNull(response);
+        assertEquals(102L, response.getId());
+        assertEquals("PRESENT", response.getStatus());
+        verify(attendanceRepository).save(any(AttendanceEntity.class));
+    }
+
+    @Test
     void testClockIn_EmployeeNotFound() {
         ClockInRequest request = ClockInRequest.builder()
                 .employeeId(999L)

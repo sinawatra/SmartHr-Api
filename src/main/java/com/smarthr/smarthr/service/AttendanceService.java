@@ -44,12 +44,24 @@ public class AttendanceService {
         EmployeeDetails employee = employeeRepository.findById(request.getEmployeeId())
                 .orElseThrow(() -> new IllegalArgumentException("Employee not found with ID: " + request.getEmployeeId()));
 
-        // Check if employee already has an unclosed session (clocked in without clocking out)
+        LocalDate today = LocalDate.now();
+
+        // Check if employee already has an unclosed session from TODAY (clocked in without clocking out).
+        // A session left open from a previous day is a missed clock-out; it stays open as-is
+        // and does not block a fresh clock-in today.
         Optional<AttendanceEntity> activeSession = attendanceRepository
                 .findTopByEmployeeIdAndClockOutIsNullOrderByClockInDesc(employee.getId());
 
-        if (activeSession.isPresent()) {
+        if (activeSession.isPresent() && !activeSession.get().getClockIn().toLocalDate().isBefore(today)) {
             throw new IllegalStateException("Already clocked in at " + activeSession.get().getClockIn());
+        }
+
+        // Only one clock-in allowed per day
+        boolean alreadyClockedInToday = attendanceRepository.existsByEmployeeIdAndClockInBetween(
+                employee.getId(), today.atStartOfDay(), today.atTime(23, 59, 59));
+
+        if (alreadyClockedInToday) {
+            throw new IllegalStateException("Employee has already clocked in today");
         }
 
         AttendanceEntity attendance = new AttendanceEntity();
