@@ -77,6 +77,9 @@ public class EmployeeDetails {
     private LocalDate hiredate;
     private LocalDate probationEndDate;
     private String profileImage;
+
+    private String telegramChatId;
+    private String telegramUsername;
     private LocalDate endDate;
     
     @CreationTimestamp

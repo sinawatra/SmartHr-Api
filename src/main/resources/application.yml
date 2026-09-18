@@ -19,7 +19,7 @@ spring:
         format_sql: true
 
 server:
-  port: ${PORT:8080}
+  port: ${PORT:8081}
 
 telegram:
   bot:

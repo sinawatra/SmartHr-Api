@@ -197,6 +197,8 @@ public class EmployeeService {
                 .hiredate(request.getHiredate())
                 .probationEndDate(request.getProbationEndDate())
                 .profileImage(request.getProfileImage())
+                .telegramUsername(request.getTelegramUsername())
+                .telegramChatId(request.getTelegramChatId())
                 .endDate(request.getEndDate())
                 .build();
 
@@ -334,6 +336,8 @@ public class EmployeeService {
         if (request.getHiredate() != null) employee.setHiredate(request.getHiredate());
         if (request.getProbationEndDate() != null) employee.setProbationEndDate(request.getProbationEndDate());
         if (request.getProfileImage() != null) employee.setProfileImage(request.getProfileImage());
+        if (request.getTelegramChatId() != null) employee.setTelegramChatId(request.getTelegramChatId());
+        if (request.getTelegramUsername() != null) employee.setTelegramUsername(request.getTelegramUsername());
         if (request.getEndDate() != null) employee.setEndDate(request.getEndDate());
 
         EmployeeDetails updated = employeeRepository.save(employee);

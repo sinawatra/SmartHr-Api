@@ -34,6 +34,8 @@ public class EmployeeResponse {
     private LocalDate hiredate;
     private LocalDate probationEndDate;
     private String profileImage;
+    private String telegramUsername;
+    private String telegramChatId;
     private LocalDate endDate;
     private List<OnboardingTaskResponse> onboardingTasks;
     private Instant createdAt;
@@ -66,6 +68,8 @@ public class EmployeeResponse {
                 .hiredate(employee.getHiredate())
                 .probationEndDate(employee.getProbationEndDate())
                 .profileImage(employee.getProfileImage())
+                .telegramUsername(employee.getTelegramUsername())
+                .telegramChatId(employee.getTelegramChatId())
                 .endDate(employee.getEndDate())
                 .onboardingTasks(onboardingTasks)
                 .createdAt(employee.getCreatedAt())

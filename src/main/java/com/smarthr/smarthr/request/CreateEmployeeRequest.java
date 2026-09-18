@@ -26,6 +26,8 @@ public class CreateEmployeeRequest {
     private String lastName;
     private String email;
     private String phoneNumber;
+    private String telegramChatId;
+    private String telegramUsername;
     private EmployementStatus employeeStatus;
     private LocalDate hiredate;
     private LocalDate probationEndDate;
