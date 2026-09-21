@@ -19,6 +19,7 @@ public class LoginResponse {
     private String lastName;
     private String email;
     private String token;
+    private String refreshToken;
     // @Builder.Default
     // private String tokenType = "Bearer";
 }

@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.smarthr.smarthr.request.CreateEmployeeRequest;
 import com.smarthr.smarthr.request.LoginRequest;
+import com.smarthr.smarthr.request.RefreshTokenRequest;
 import com.smarthr.smarthr.response.ApiResponse;
 import com.smarthr.smarthr.response.EmployeeResponse;
 import com.smarthr.smarthr.response.LoginResponse;
@@ -30,6 +31,15 @@ public class AuthController {
     public ResponseEntity<ApiResponse<LoginResponse>> login(@RequestBody LoginRequest request) {
         LoginResponse response = employeeService.login(request);
         return ResponseEntity.ok(ApiResponse.success("Login successful", response));
+    }
+
+    /**
+     * Exchange a valid refresh token for a new access token and refresh token.
+     */
+    @PostMapping("/refresh")
+    public ResponseEntity<ApiResponse<LoginResponse>> refresh(@RequestBody RefreshTokenRequest request) {
+        LoginResponse response = employeeService.refreshToken(request);
+        return ResponseEntity.ok(ApiResponse.success("Token refreshed successfully", response));
     }
 
     /**

@@ -23,6 +23,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
+    public static final String AUTH_ERROR_ATTRIBUTE = "jwt.auth.error";
+
     private final JwtTokenProvider tokenProvider;
 
     @Override
@@ -30,7 +32,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
         String token = getJwtFromRequest(request);
 
-        if (StringUtils.hasText(token) && tokenProvider.validateToken(token)) {
+        if (StringUtils.hasText(token) && tokenProvider.validateToken(token)
+                && !tokenProvider.isRefreshToken(token)) {
             String username = tokenProvider.getUsernameFromToken(token);
             String role = tokenProvider.getRoleFromToken(token);
 
@@ -53,6 +56,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
+        }
+
+        else if (StringUtils.hasText(token)) {
+            request.setAttribute(AUTH_ERROR_ATTRIBUTE,
+                    tokenProvider.isExpired(token) ? "Token expired" : "Invalid token");
         }
 
         filterChain.doFilter(request, response);

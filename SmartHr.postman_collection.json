@@ -71,7 +71,7 @@
                 "header": [],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\r\n  \"username\": \"Testing\",\r\n  \"password\": \"$Rith$9990\",\r\n  \"roleName\": \"USER\",\r\n  \"roleId\": 2,\r\n//   \"companyId\": 1,\r\n  \"departmentId\": 1,\r\n  \"managerId\": 1,\r\n  \"employeeCode\": \"EMP-2026-0089\",\r\n  \"firstName\": \"Test\",\r\n  \"lastName\": \"Test\",\r\n  \"email\": \"testing@gmail.com\",\r\n  \"phoneNumber\": \"+1-555-0199\",\r\n  \"employeeStatus\": \"Probation\",\r\n  \"hiredate\": \"2026-08-01\",\r\n  \"probationEndDate\": \"2026-11-01\",\r\n  \"profileImage\": \"https://cdn.example.com/profiles/johndoe.jpg\",\r\n  \"endDate\": null\r\n}",
+                  "raw": "{\r\n  \"username\": \"Testing2222\",\r\n  \"password\": \"$Rith$9990\",\r\n  \"roleName\": \"USER\",\r\n  \"roleId\": 2,\r\n//   \"companyId\": 1,\r\n   \"telegramUsername\" : \"@testing2222\",\r\n  \"telegramChatId\" : \"99990\",\r\n  \"departmentId\": 1,\r\n  \"managerId\": 1,\r\n  \"employeeCode\": \"EMP-2026-0089\",\r\n  \"firstName\": \"Test\",\r\n  \"lastName\": \"Test\",\r\n  \"email\": \"testing2222@gmail.com\",\r\n  \"phoneNumber\": \"+1-555-0199\",\r\n  \"employeeStatus\": \"Probation\",\r\n  \"hiredate\": \"2026-08-01\",\r\n  \"probationEndDate\": \"2026-11-01\",\r\n  \"profileImage\": \"https://cdn.example.com/profiles/johndoe.jpg\",\r\n  \"endDate\": null\r\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -87,35 +87,6 @@
                     "api",
                     "v1",
                     "employees"
-                  ]
-                }
-              },
-              "response": []
-            },
-            {
-              "name": "Update Employee",
-              "request": {
-                "auth": {
-                  "type": "bearer",
-                  "bearer": [
-                    {
-                      "key": "token",
-                      "value": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJTaWF3YXRyYSBSaXRoIiwicm9sZSI6IkFETUlOIiwiaWF0IjoxNzg1ODI0MjkwLCJleHAiOjE3ODU5MTA2OTB9.AR-JB-bv6JLAlhuAUgtQHljqOaDwXBC2BbyGc-EpgUoYKFCicnH2KRpQUdni9cpG0WABXCpFgL_HqWnqp4oh6w",
-                      "type": "string"
-                    }
-                  ]
-                },
-                "method": "GET",
-                "header": [],
-                "url": {
-                  "raw": "{{BaseUrl}}/api/employees/6",
-                  "host": [
-                    "{{BaseUrl}}"
-                  ],
-                  "path": [
-                    "api",
-                    "employees",
-                    "6"
                   ]
                 }
               },
@@ -1554,9 +1525,31 @@
             },
             {
               "name": "Get My Leave Amount",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
               "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{userToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
                 "method": "GET",
                 "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
                 "url": {
                   "raw": "{{baseUrl}}/api/v1/leave-requests/balance",
                   "host": [
@@ -1589,7 +1582,7 @@
                 "header": [],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\r\n    \"leaveTypeId\": 1,\r\n    \"startDate\" : \"2026-12-12\", //YYYY-MM-DD\r\n    \"endDate\" : \"2026-12-26\",\r\n    \"reason\" : \"Sick\"\r\n\r\n}",
+                  "raw": "{\r\n    \"leaveTypeId\": 1,\r\n    \"startDate\" : \"2026-12-12\", //YYYY-MM-DD\r\n    \"endDate\" : \"2026-12-14\",\r\n    \"reason\" : \"Sick\"\r\n\r\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -1756,7 +1749,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n    \"username\": \"Testing\",\r\n    \"password\": \"$Rith$9990\"\r\n}",
+              "raw": "{\r\n    \"username\": \"Sinawatra Rith\",\r\n    \"password\": \"$Rith$9990\"\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1846,66 +1839,10 @@
       ]
     },
     {
-      "name": "Testing",
+      "name": "New Request",
       "request": {
-        "auth": {
-          "type": "bearer",
-          "bearer": [
-            {
-              "key": "token",
-              "value": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ3YXRyYSIsInVzZXJJZCI6ODMxNSwidHlwZSI6IkFDQ0VTUyIsImlhdCI6MTc4ODMyMzIzOCwiZXhwIjoxNzg4MzI2ODM4fQ.SjA3NlEmEGPiyyY7x9mvtwR-sRtI51CDgqHwSjeHqChOobOOMtBHjZCnkfj9Gabb-PYBLEyYxOyKXhIlAEQfEg",
-              "type": "string"
-            }
-          ]
-        },
-        "method": "POST",
-        "header": [],
-        "body": {
-          "mode": "formdata",
-          "formdata": [
-            {
-              "key": "files",
-              "type": "file",
-              "uuid": "f7f84f37-d8aa-46b2-b96e-396090dbb7c6",
-              "src": "postman-cloud:///1f19a15b-0fb8-43a0-9b15-e3a7760a181d"
-            },
-            {
-              "key": "startDate",
-              "value": "2026-09-02",
-              "type": "text",
-              "uuid": "960daa9b-31ab-4306-8563-c80baa6c3b18"
-            },
-            {
-              "key": "endDate",
-              "value": "2026-09-03",
-              "type": "text",
-              "uuid": "3f6676fd-fd15-43e3-a582-8d26645392ed"
-            },
-            {
-              "key": "reason",
-              "value": "Sick",
-              "type": "text",
-              "uuid": "d71fd044-f238-4475-a485-0cc2679ebb4e"
-            },
-            {
-              "key": "attendance_letter_request_type",
-              "value": "I love you",
-              "type": "text",
-              "uuid": "e7312471-da3b-46d9-a284-0a04d3190c48"
-            }
-          ]
-        },
-        "url": {
-          "raw": "{{baseUrl}}/api/v1/attendance-letter-requests",
-          "host": [
-            "{{baseUrl}}"
-          ],
-          "path": [
-            "api",
-            "v1",
-            "attendance-letter-requests"
-          ]
-        }
+        "method": "GET",
+        "header": []
       },
       "response": []
     }

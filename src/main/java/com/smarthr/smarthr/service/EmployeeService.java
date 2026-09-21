@@ -38,6 +38,7 @@ import com.smarthr.smarthr.repository.OnboardingTaskRepository;
 import com.smarthr.smarthr.repository.RoleRepository;
 import com.smarthr.smarthr.request.CreateEmployeeRequest;
 import com.smarthr.smarthr.request.LoginRequest;
+import com.smarthr.smarthr.request.RefreshTokenRequest;
 import com.smarthr.smarthr.response.EmployeeResponse;
 import com.smarthr.smarthr.response.LoginResponse;
 import com.smarthr.smarthr.response.OnboardingTaskResponse;
@@ -89,6 +90,33 @@ public class EmployeeService {
                 .lastName(employee.getLastName())
                 .email(employee.getEmail())
                 .token(token)
+                .refreshToken(tokenProvider.generateRefreshToken(employee.getUsername()))
+                .build();
+    }
+
+    /**
+     * Issue a new access token (and rotated refresh token) from a valid refresh token.
+     */
+    public LoginResponse refreshToken(RefreshTokenRequest request) {
+        String refreshToken = request != null ? request.getRefreshToken() : null;
+        if (refreshToken == null || refreshToken.isBlank() || !tokenProvider.validateRefreshToken(refreshToken)) {
+            throw new InvalidCredentialsException("Invalid or expired refresh token");
+        }
+
+        EmployeeDetails employee = employeeRepository.findByUsername(tokenProvider.getUsernameFromToken(refreshToken))
+                .orElseThrow(() -> new InvalidCredentialsException("Invalid or expired refresh token"));
+
+        String roleName = employee.getRole() != null ? employee.getRole().getName() : "USER";
+
+        return LoginResponse.builder()
+                .id(employee.getId())
+                .username(employee.getUsername())
+                .employeeCode(employee.getEmployeeCode())
+                .firstName(employee.getFirstName())
+                .lastName(employee.getLastName())
+                .email(employee.getEmail())
+                .token(tokenProvider.generateToken(employee.getUsername(), roleName))
+                .refreshToken(tokenProvider.generateRefreshToken(employee.getUsername()))
                 .build();
     }
 
