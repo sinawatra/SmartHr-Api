@@ -19,6 +19,8 @@ import com.smarthr.smarthr.request.CreateEmployeeRequest;
 import com.smarthr.smarthr.response.ApiResponse;
 import com.smarthr.smarthr.response.EmployeeResponse;
 import com.smarthr.smarthr.response.PagedResponse;
+import com.smarthr.smarthr.response.ProbationEmployeeResponse;
+import com.smarthr.smarthr.response.ProbationSummaryResponse;
 import com.smarthr.smarthr.service.EmployeeService;
 
 import lombok.RequiredArgsConstructor;
@@ -53,6 +55,29 @@ public class EmployeeController {
         Pageable pageable = PageRequest.of(page, size, sort);
         PagedResponse<EmployeeResponse> employees = employeeService.getAllEmployees(pageable);
         return ResponseEntity.ok(ApiResponse.success(employees));
+    }
+
+    /**
+     * Endpoint to list employees still under probation, soonest probation end date first by default.
+     */
+    @GetMapping("/probation")
+    public ResponseEntity<ApiResponse<PagedResponse<ProbationEmployeeResponse>>> getProbationEmployees(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "probationEndDate") String sortBy,
+            @RequestParam(defaultValue = "asc") String sortDir) {
+        Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+        Pageable pageable = PageRequest.of(page, size, sort);
+        PagedResponse<ProbationEmployeeResponse> employees = employeeService.getProbationEmployees(pageable);
+        return ResponseEntity.ok(ApiResponse.success(employees));
+    }
+
+    /**
+     * Endpoint for probation dashboard counts.
+     */
+    @GetMapping("/probation/summary")
+    public ResponseEntity<ApiResponse<ProbationSummaryResponse>> getProbationSummary() {
+        return ResponseEntity.ok(ApiResponse.success(employeeService.getProbationSummary()));
     }
 
     /**

@@ -11,6 +11,117 @@
       "name": "Admin",
       "item": [
         {
+          "name": "Probation",
+          "item": [
+            {
+              "name": "Probation Criteria",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{adminToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/evaluation-criteria",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "evaluation-criteria"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Probation Review",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{adminToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"employeeId\" : \"1\",\n    \"periodStart\": \"2026-01-01\",\n    \"periodEnd\" : \"2026-01-31\",\n    \"items\": [{\"criteriaId\": 1, \"score\": 4}]  \n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/evaluations",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "evaluations"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Get Probation List",
+              "request": {
+                "method": "GET",
+                "header": []
+              },
+              "response": []
+            },
+            {
+              "name": "Probation/summary",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{adminToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/employees/probation/summary",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "employees",
+                    "probation",
+                    "summary"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
           "name": "Employee",
           "item": [
             {
@@ -109,7 +220,7 @@
                 "header": [],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\r\n//   \"username\": \"Siawatra Rith\",\r\n//   \"password\": \"$Rith$9990\",\r\n//   \"role\": \"USER\",\r\n//   \"roleName\": \"ROLE_EMPLOYEE\",\r\n//   \"roleId\": 1,\r\n//   \"companyId\": 1,\r\n//   \"departmentId\": 5,\r\n//   \"managerId\": 12,\r\n//   \"employeeCode\": \"EMP-2026-0089\",\r\n//   \"firstName\": \"John\",\r\n//   \"lastName\": \"Doe\",\r\n//   \"email\": \"john.doe@company.com\",\r\n//   \"phoneNumber\": \"+1-555-0199\",\r\n  \"employeeStatus\": \"ACTIVE\",\r\n//   \"hiredate\": \"2026-08-01\"\r\n//   \"probationEndDate\": \"2026-11-01\",\r\n//   \"profileImage\": \"https://cdn.example.com/profiles/johndoe.jpg\",\r\n//   \"endDate\": null\r\n}",
+                  "raw": "{\r\n//   \"username\": \"Siawatra Rith\",\r\n//   \"password\": \"$Rith$9990\",\r\n//   \"role\": \"USER\",\r\n//   \"roleName\": \"ROLE_EMPLOYEE\",\r\n//   \"roleId\": 1,\r\n//   \"companyId\": 1,\r\n//   \"departmentId\": 5,\r\n//   \"managerId\": 12,\r\n//   \"employeeCode\": \"EMP-2026-0089\",\r\n//   \"firstName\": \"John\",\r\n//   \"lastName\": \"Doe\",\r\n//   \"email\": \"john.doe@company.com\",\r\n//   \"phoneNumber\": \"+1-555-0199\",\r\n  \"employeeStatus\": \"ACTIVE\",\r\n//      \"telegramUsername\" : \"@testing2222\",\r\n//   \"telegramChatId\" : \"99990\",\r\n//   \"hiredate\": \"2026-08-01\"\r\n//   \"probationEndDate\": \"2026-11-01\",\r\n//   \"profileImage\": \"https://cdn.example.com/profiles/johndoe.jpg\",\r\n//   \"endDate\": null\r\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -475,7 +586,7 @@
                   "bearer": [
                     {
                       "key": "token",
-                      "value": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJTaWF3YXRyYSBSaXRoIiwicm9sZSI6IkFETUlOIiwiaWF0IjoxNzg1ODI5NTcwLCJleHAiOjE3ODU5MTU5NzB9.ZdQ0By1Tof4b2Uei0yBAe_8VaM9DZAukYyWzVyKxl-FHiQpmXrjwCAu4UIH2pYHY2Fu1cIs-UaeCSEmgVDR84w",
+                      "value": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJTaW5hd2F0cmEgUml0aCIsInJvbGUiOiJBRE1JTiIsImlhdCI6MTc4OTAwNjkyMywiZXhwIjoxNzg5MDkzMzIzfQ.0sxaa2qdgXqwBosTJ9HCoJEc_ZElpNOHMqUX0x3SLjT6ly8_RH7Jal1qvwq788xztbf0PGBCr9qrrI1T5e8nWQ",
                       "type": "string"
                     }
                   ]
@@ -484,7 +595,7 @@
                 "header": [],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\r\n    \"name\" : \"Acleda\",\r\n    \"code\" : \"Acleda\",\r\n    \"address\" : \"Phnom Penh Sensok\",\r\n    \"phone\" : \"+85577889990\",\r\n    \"email\" : \"acleda@gmail.com\",\r\n    \"latitute\" : \"007\",\r\n    \"longitude\" : \"007\",\r\n    \"telegramChatId\" : \"-5557264907\"\r\n}",
+                  "raw": "{\r\n    \"name\" : \"Noob Noob\",\r\n    \"code\" : \"Noob Noob\",\r\n    \"address\" : \"Phnom Penh Sensok\",\r\n    \"phone\" : \"+85577889990\",\r\n    \"email\" : \"acleda@gmail.com\",\r\n    \"latitute\" : \"007\",\r\n    \"longitude\" : \"007\",\r\n    \"telegramChatId\" : \"-5557264907\"\r\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -1021,7 +1132,12 @@
                 "header": [],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\r\n  \"username\": \"TestingTH\",\r\n  \"password\": \"123456\",\r\n  \"roleName\": \"ADMIN\",\r\n  \"roleId\": 2,\r\n  \"companyId\": 1,\r\n  \"departmentId\": 1,\r\n  \"managerId\": 1,\r\n  \"employeeCode\": \"EMP-2026-0089\",\r\n  \"firstName\": \"Test\",\r\n  \"lastName\": \"Test\",\r\n  \"email\": \"testingTH@gmail.com\",\r\n  \"phoneNumber\": \"+1-555-0199\",\r\n  \"employeeStatus\": \"Probation\",\r\n  \"hiredate\": \"2026-08-01\",\r\n  \"probationEndDate\": \"2026-11-01\",\r\n  \"profileImage\": \"https://cdn.example.com/profiles/johndoe.jpg\",\r\n  \"endDate\": null\r\n}"
+                  "raw": "",
+                  "options": {
+                    "raw": {
+                      "language": "text"
+                    }
+                  }
                 },
                 "url": {
                   "raw": "{{baseUrl}}/api/v1/announcements",
@@ -1718,29 +1834,48 @@
           ]
         },
         {
+          "name": "Change Password",
+          "item": [
+            {
+              "name": "Change Password",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"currentPassword\" : \"\",\n    \"newPassword\" : \"\",\n    \"confirmPassword\" : \"\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/auth/change-password",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "auth",
+                    "change-password"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
           "name": "Login",
           "event": [
             {
               "listen": "test",
               "script": {
-                "exec": [
-                  "// Parse the JSON response body\r",
-                  "const response = pm.response.json();\r",
-                  "\r",
-                  "// Verify the response was successful and extract the token\r",
-                  "if (response.success && response.data && response.data.token) {\r",
-                  "    \r",
-                  "    // Save token to an Environment Variable\r",
-                  "    pm.environment.set(\"userToken\", response.data.token);\r",
-                  "    \r",
-                  "    console.log(\"userToken saved successfully!\");\r",
-                  "} else {\r",
-                  "    console.error(\"Could not find token in response:\", response.message);\r",
-                  "}"
-                ],
                 "type": "text/javascript",
-                "packages": {},
-                "requests": {}
+                "exec": [
+                  "// Parse the JSON response body\r\nconst response = pm.response.json();\r\n\r\n// Verify the response was successful and extract the token\r\nif (response.success && response.data && response.data.token) {\r\n    \r\n    // Save token to an Environment Variable\r\n    pm.environment.set(\"userToken\", response.data.token);\r\n    \r\n    console.log(\"userToken saved successfully!\");\r\n} else {\r\n    console.error(\"Could not find token in response:\", response.message);\r\n}"
+                ]
               }
             }
           ],
@@ -1749,7 +1884,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n    \"username\": \"Sinawatra Rith\",\r\n    \"password\": \"$Rith$9990\"\r\n}",
+              "raw": "{\r\n    \"username\": \"SodaneySary\",\r\n    \"password\": \"$Rith$9990\"\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1765,6 +1900,34 @@
                 "api",
                 "auth",
                 "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Refresh Token",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"username\" : \"Sinawatra Rith\",\r\n    \"password\" : \"$Rith$9990\"\r\n}\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/refresh",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "refresh"
               ]
             }
           },
@@ -1837,14 +2000,6 @@
           "response": []
         }
       ]
-    },
-    {
-      "name": "New Request",
-      "request": {
-        "method": "GET",
-        "header": []
-      },
-      "response": []
     }
   ],
   "event": [

@@ -38,6 +38,7 @@ public class SecurityConfig {
             .exceptionHandling(ex -> ex.authenticationEntryPoint(jwtAuthenticationEntryPoint))
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/auth/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/v1/employees/probation", "/api/v1/employees/probation/**").hasAnyAuthority("ADMIN", "HR")
                 .requestMatchers(HttpMethod.POST, "/api/v1/employees/**").hasAnyAuthority("ADMIN", "HR")
                 .requestMatchers(HttpMethod.PUT, "/api/v1/employees/**").hasAnyAuthority("ADMIN", "HR")
                 .requestMatchers(HttpMethod.DELETE, "/api/v1/employees/**").hasAnyAuthority("ADMIN", "HR")
@@ -45,6 +46,8 @@ public class SecurityConfig {
                 .requestMatchers("/api/v1/attendance/**").authenticated()
                 .requestMatchers("/api/v1/dashboard/**").authenticated()
                 .requestMatchers("/api/v1/leave-requests/**").authenticated()
+                .requestMatchers("/api/v1/evaluations/**").authenticated()
+                .requestMatchers("/api/v1/evaluation-criteria/**").authenticated()
                 .anyRequest().permitAll()
             )
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

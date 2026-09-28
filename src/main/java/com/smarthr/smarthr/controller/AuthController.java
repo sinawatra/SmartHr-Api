@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.smarthr.smarthr.request.ChangePasswordRequest;
 import com.smarthr.smarthr.request.CreateEmployeeRequest;
 import com.smarthr.smarthr.request.LoginRequest;
 import com.smarthr.smarthr.request.RefreshTokenRequest;
@@ -59,5 +60,14 @@ public class AuthController {
     public ResponseEntity<ApiResponse<EmployeeResponse>> getProfileInfo() {
         EmployeeResponse response = employeeService.getProfileInfo();
         return ResponseEntity.ok(ApiResponse.success("Profile info retrieved successfully", response));
+    }
+
+    /**
+     * Endpoint for the currently authenticated user to change their own password.
+     */
+    @PostMapping("/change-password")
+    public ResponseEntity<ApiResponse<Void>> changePassword(@RequestBody ChangePasswordRequest request) {
+        employeeService.changePassword(request);
+        return ResponseEntity.ok(ApiResponse.success("Password changed successfully", null));
     }
 }

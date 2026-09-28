@@ -36,6 +36,7 @@ import com.smarthr.smarthr.repository.DepartmentRepository;
 import com.smarthr.smarthr.repository.EmployeeRepository;
 import com.smarthr.smarthr.repository.OnboardingTaskRepository;
 import com.smarthr.smarthr.repository.RoleRepository;
+import com.smarthr.smarthr.request.ChangePasswordRequest;
 import com.smarthr.smarthr.request.CreateEmployeeRequest;
 import com.smarthr.smarthr.request.LoginRequest;
 import com.smarthr.smarthr.request.RefreshTokenRequest;
@@ -43,6 +44,8 @@ import com.smarthr.smarthr.response.EmployeeResponse;
 import com.smarthr.smarthr.response.LoginResponse;
 import com.smarthr.smarthr.response.OnboardingTaskResponse;
 import com.smarthr.smarthr.response.PagedResponse;
+import com.smarthr.smarthr.response.ProbationEmployeeResponse;
+import com.smarthr.smarthr.response.ProbationSummaryResponse;
 import com.smarthr.smarthr.security.JwtTokenProvider;
 
 import jakarta.persistence.EntityNotFoundException;
@@ -301,6 +304,54 @@ public class EmployeeService {
     }
 
     /**
+     * Retrieve employees still under probation, with pagination.
+     */
+    @Transactional(readOnly = true)
+    public PagedResponse<ProbationEmployeeResponse> getProbationEmployees(Pageable pageable) {
+        Page<EmployeeDetails> page = employeeRepository.findByEmployeeStatus(EmployementStatus.Probation, pageable);
+        List<Long> managerIds = page.getContent().stream()
+                .map(EmployeeDetails::getManagerId)
+                .filter(id -> id != null)
+                .map(Integer::longValue)
+                .distinct()
+                .collect(Collectors.toList());
+        Map<Long, EmployeeDetails> managers = managerIds.isEmpty()
+                ? Collections.emptyMap()
+                : employeeRepository.findAllById(managerIds).stream()
+                        .collect(Collectors.toMap(EmployeeDetails::getId, m -> m));
+
+        LocalDate today = LocalDate.now();
+        List<ProbationEmployeeResponse> content = page.getContent().stream()
+                .map(emp -> ProbationEmployeeResponse.fromEntity(
+                        emp,
+                        emp.getManagerId() != null ? managers.get(emp.getManagerId().longValue()) : null,
+                        today))
+                .collect(Collectors.toList());
+        return PagedResponse.of(page, content);
+    }
+
+    /**
+     * Probation dashboard counts.
+     */
+    @Transactional(readOnly = true)
+    public ProbationSummaryResponse getProbationSummary() {
+        LocalDate today = LocalDate.now();
+        int quarterStartMonth = ((today.getMonthValue() - 1) / 3) * 3 + 1;
+        LocalDate quarterStart = LocalDate.of(today.getYear(), quarterStartMonth, 1);
+        LocalDate quarterEnd = quarterStart.plusMonths(3).minusDays(1);
+
+        return ProbationSummaryResponse.builder()
+                .onProbation(employeeRepository.countByEmployeeStatus(EmployementStatus.Probation))
+                .endingSoon(employeeRepository.countByEmployeeStatusAndProbationEndDateBetween(
+                        EmployementStatus.Probation, today, today.plusDays(14)))
+                .completedThisQuarter(employeeRepository.countByEmployeeStatusAndProbationEndDateBetween(
+                        EmployementStatus.FullStaff, quarterStart, quarterEnd))
+                .pendingReview(employeeRepository.countByEmployeeStatusAndProbationEndDateBefore(
+                        EmployementStatus.Probation, today))
+                .build();
+    }
+
+    /**
      * Retrieve employee by ID.
      */
     public EmployeeResponse getEmployeeById(Long id) {
@@ -419,6 +470,40 @@ public class EmployeeService {
         }
 
         return EmployeeResponse.fromEntity(employee, getOnboardingTasksForEmployee(employee.getId()), hasClockIn, hasClockOut);
+    }
+
+    /**
+     * Change the password of the currently authenticated employee.
+     */
+    public void changePassword(ChangePasswordRequest request) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated() || "anonymousUser".equalsIgnoreCase(authentication.getName())) {
+            throw new InvalidCredentialsException("User must be authenticated to change password");
+        }
+
+        if (request == null
+                || request.getCurrentPassword() == null || request.getCurrentPassword().isBlank()
+                || request.getNewPassword() == null || request.getNewPassword().isBlank()) {
+            throw new IllegalArgumentException("Current password and new password are required");
+        }
+        if (request.getConfirmPassword() != null && !request.getNewPassword().equals(request.getConfirmPassword())) {
+            throw new IllegalArgumentException("New password and confirm password do not match");
+        }
+
+        String username = authentication.getName();
+        EmployeeDetails employee = employeeRepository.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("Employee not found with username: " + username));
+
+        // 400 rather than 401 so clients don't mistake a wrong password for an expired token
+        if (!passwordEncoder.matches(request.getCurrentPassword(), employee.getPassword())) {
+            throw new IllegalArgumentException("Current password is incorrect");
+        }
+        if (passwordEncoder.matches(request.getNewPassword(), employee.getPassword())) {
+            throw new IllegalArgumentException("New password must be different from the current password");
+        }
+
+        employee.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        employeeRepository.save(employee);
     }
 }
 
