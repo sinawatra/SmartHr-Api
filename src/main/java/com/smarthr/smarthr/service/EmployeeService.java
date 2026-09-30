@@ -46,6 +46,7 @@ import com.smarthr.smarthr.response.OnboardingTaskResponse;
 import com.smarthr.smarthr.response.PagedResponse;
 import com.smarthr.smarthr.response.ProbationEmployeeResponse;
 import com.smarthr.smarthr.response.ProbationSummaryResponse;
+import com.smarthr.smarthr.response.RoleResponse;
 import com.smarthr.smarthr.security.JwtTokenProvider;
 
 import jakarta.persistence.EntityNotFoundException;
@@ -92,6 +93,7 @@ public class EmployeeService {
                 .firstName(employee.getFirstName())
                 .lastName(employee.getLastName())
                 .email(employee.getEmail())
+                .role(toRoleResponse(employee.getRole()))
                 .token(token)
                 .refreshToken(tokenProvider.generateRefreshToken(employee.getUsername()))
                 .build();
@@ -118,8 +120,19 @@ public class EmployeeService {
                 .firstName(employee.getFirstName())
                 .lastName(employee.getLastName())
                 .email(employee.getEmail())
+                .role(toRoleResponse(employee.getRole()))
                 .token(tokenProvider.generateToken(employee.getUsername(), roleName))
                 .refreshToken(tokenProvider.generateRefreshToken(employee.getUsername()))
+                .build();
+    }
+
+    private RoleResponse toRoleResponse(RoleEntity role) {
+        if (role == null) {
+            return null;
+        }
+        return RoleResponse.builder()
+                .id(role.getId())
+                .name(role.getName())
                 .build();
     }
 

@@ -18,6 +18,7 @@ public class LoginResponse {
     private String firstName;
     private String lastName;
     private String email;
+    private RoleResponse role;
     private String token;
     private String refreshToken;
     // @Builder.Default
