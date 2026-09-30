@@ -9,7 +9,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import com.smarthr.smarthr.repository.DefaultOnboardingTaskRepository;
+import com.smarthr.smarthr.onboarding.repository.DefaultOnboardingTaskRepository;
 
 @ExtendWith(MockitoExtension.class)
 class OnboardingTaskDataInitializerTest {

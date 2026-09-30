@@ -5,8 +5,8 @@ import java.util.List;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
-import com.smarthr.smarthr.entity.EvaluationCriteriaEntity;
-import com.smarthr.smarthr.repository.EvaluationCriteriaRepository;
+import com.smarthr.smarthr.evaluation.entity.EvaluationCriteriaEntity;
+import com.smarthr.smarthr.evaluation.repository.EvaluationCriteriaRepository;
 
 import lombok.RequiredArgsConstructor;
 

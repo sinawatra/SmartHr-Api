@@ -5,8 +5,8 @@ import java.util.List;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
-import com.smarthr.smarthr.entity.DefaultOnboardingTaskEntity;
-import com.smarthr.smarthr.repository.DefaultOnboardingTaskRepository;
+import com.smarthr.smarthr.onboarding.entity.DefaultOnboardingTaskEntity;
+import com.smarthr.smarthr.onboarding.repository.DefaultOnboardingTaskRepository;
 
 import lombok.RequiredArgsConstructor;
 

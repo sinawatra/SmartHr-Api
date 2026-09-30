@@ -6,8 +6,8 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
-import com.smarthr.smarthr.entity.RoleEntity;
-import com.smarthr.smarthr.repository.RoleRepository;
+import com.smarthr.smarthr.role.entity.RoleEntity;
+import com.smarthr.smarthr.role.repository.RoleRepository;
 
 import lombok.RequiredArgsConstructor;
 

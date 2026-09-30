@@ -1,8 +1,8 @@
 package com.smarthr.smarthr.config;
 
 
-import com.smarthr.smarthr.entity.LeaveTypeEntity;
-import com.smarthr.smarthr.repository.LeaveTypeRepository;
+import com.smarthr.smarthr.leave.entity.LeaveTypeEntity;
+import com.smarthr.smarthr.leave.repository.LeaveTypeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
