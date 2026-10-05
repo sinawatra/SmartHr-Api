@@ -25,4 +25,7 @@ private Long id;
     private Long workDurationMinutes;
     private String status;
     private String notes;
+    private Long lateMinutes;
+    private Long earlyLeaveMinutes;
+    private Long overtimeMinutes;
 }

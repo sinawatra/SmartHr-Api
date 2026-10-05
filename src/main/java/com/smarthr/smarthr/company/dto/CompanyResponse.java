@@ -1,5 +1,7 @@
 package com.smarthr.smarthr.company.dto;
 
+import java.time.DayOfWeek;
+import java.time.LocalTime;
 import java.time.Instant;
 import java.util.List;
 
@@ -26,4 +28,8 @@ public class CompanyResponse {
     private Instant createdAt;
     private Instant updatedAt;
     private String telegramChatId;
+    private LocalTime workStartTime;
+    private LocalTime workEndTime;
+    private Integer lateGraceMinutes;
+    private List<DayOfWeek> workingDays;
 }

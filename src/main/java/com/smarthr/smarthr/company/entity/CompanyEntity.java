@@ -1,6 +1,7 @@
 package com.smarthr.smarthr.company.entity;
 
 import java.time.Instant;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -67,4 +68,19 @@ public class CompanyEntity {
 
     @Column(name = "telegram_chat_id")
     private String telegramChatId;
+
+    // Work schedule used for late / early-leave / attendance scoring.
+    // Null values fall back to the defaults in WorkSchedule.
+    @Column(name = "work_start_time")
+    private LocalTime workStartTime;
+
+    @Column(name = "work_end_time")
+    private LocalTime workEndTime;
+
+    @Column(name = "late_grace_minutes")
+    private Integer lateGraceMinutes;
+
+    // Comma-separated DayOfWeek names, e.g. "MONDAY,TUESDAY,WEDNESDAY,THURSDAY,FRIDAY"
+    @Column(name = "working_days")
+    private String workingDays;
 }

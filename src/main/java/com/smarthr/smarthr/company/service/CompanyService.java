@@ -1,6 +1,7 @@
 package com.smarthr.smarthr.company.service;
 
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.smarthr.smarthr.company.entity.CompanyEntity;
+import com.smarthr.smarthr.company.entity.WorkSchedule;
 import com.smarthr.smarthr.company.repository.CompanyRepository;
 import com.smarthr.smarthr.company.dto.CompanyRequest;
 import com.smarthr.smarthr.company.dto.CompanyResponse;
@@ -50,6 +52,7 @@ public class CompanyService {
                 .latitude(request.getLatitute())
                 .telegramChatId(request.getTelegramChatId())
                 .build();
+        applyWorkSchedule(entity, request);
 
         CompanyEntity saved = companyRepository.save(entity);
         return mapToResponse(saved);
@@ -99,6 +102,7 @@ public class CompanyService {
         if (request.getTelegramChatId() != null) entity.setTelegramChatId(request.getTelegramChatId());
         if (request.getLongitude() != null) entity.setLongitude(request.getLongitude());
         if (request.getLatitute() != null) entity.setLatitude(request.getLatitute());
+        applyWorkSchedule(entity, request);
 
         CompanyEntity updated = companyRepository.save(entity);
         return mapToResponse(updated);
@@ -111,12 +115,36 @@ public class CompanyService {
         companyRepository.delete(entity);
     }
 
+    /** Copies any schedule fields present on the request, then validates the resulting schedule. */
+    private void applyWorkSchedule(CompanyEntity entity, CompanyRequest request) {
+        if (request.getWorkStartTime() != null) entity.setWorkStartTime(request.getWorkStartTime());
+        if (request.getWorkEndTime() != null) entity.setWorkEndTime(request.getWorkEndTime());
+        if (request.getLateGraceMinutes() != null) {
+            if (request.getLateGraceMinutes() < 0) {
+                throw new IllegalArgumentException("Late grace minutes cannot be negative");
+            }
+            entity.setLateGraceMinutes(request.getLateGraceMinutes());
+        }
+        if (request.getWorkingDays() != null) {
+            if (request.getWorkingDays().isEmpty()) {
+                throw new IllegalArgumentException("At least one working day is required");
+            }
+            entity.setWorkingDays(WorkSchedule.formatWorkingDays(Set.copyOf(request.getWorkingDays())));
+        }
+
+        WorkSchedule schedule = WorkSchedule.of(entity);
+        if (!schedule.startTime().isBefore(schedule.endTime())) {
+            throw new IllegalArgumentException("Work start time must be before work end time");
+        }
+    }
+
     private CompanyResponse mapToResponse(CompanyEntity entity) {
         List<DepartmentResponse> departmentResponses = entity.getDepartments() != null
                 ? entity.getDepartments().stream()
                         .map(departmentService::mapToResponse)
                         .collect(Collectors.toList())
                 : List.of();
+        WorkSchedule schedule = WorkSchedule.of(entity);
 
         return CompanyResponse.builder()
                 .id(entity.getId())
@@ -129,6 +157,10 @@ public class CompanyService {
                 .latitude(entity.getLatitude())
                 .telegramChatId(entity.getTelegramChatId())
                 .departments(departmentResponses)
+                .workStartTime(schedule.startTime())
+                .workEndTime(schedule.endTime())
+                .lateGraceMinutes(schedule.lateGraceMinutes())
+                .workingDays(schedule.workingDays().stream().sorted().toList())
                 .createdAt(entity.getCreatedAt())
                 .updatedAt(entity.getUpdatedAt())
                 .build();

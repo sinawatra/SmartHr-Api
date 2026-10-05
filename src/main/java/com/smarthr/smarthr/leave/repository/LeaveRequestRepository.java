@@ -5,6 +5,9 @@
 
 package com.smarthr.smarthr.leave.repository;
 
+import java.time.LocalDate;
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -26,4 +29,12 @@ public interface LeaveRequestRepository extends JpaRepository<LeaveRequestEntity
 
     // All requests in a given status (ADMIN-wide approval queue).
     Page<LeaveRequestEntity> findByStatus(LeaveStatus status, Pageable pageable);
+
+    // Requests in a given status that overlap [from, to] (used by attendance scoring).
+    // Note the argument order: (status, to, from).
+    List<LeaveRequestEntity> findByStatusAndStartDateLessThanEqualAndEndDateGreaterThanEqual(
+            LeaveStatus status, LocalDate to, LocalDate from);
+
+    List<LeaveRequestEntity> findByEmployeeIdAndStatusAndStartDateLessThanEqualAndEndDateGreaterThanEqual(
+            Long employeeId, LeaveStatus status, LocalDate to, LocalDate from);
 }

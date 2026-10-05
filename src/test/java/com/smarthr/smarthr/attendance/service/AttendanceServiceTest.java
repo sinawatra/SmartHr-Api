@@ -4,15 +4,16 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.time.ZoneId;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
@@ -28,6 +29,8 @@ import com.smarthr.smarthr.attendance.dto.ClockInRequest;
 import com.smarthr.smarthr.attendance.dto.ClockOutRequest;
 import com.smarthr.smarthr.attendance.dto.AttendanceResponse;
 import com.smarthr.smarthr.common.dto.PagedResponse;
+import com.smarthr.smarthr.company.entity.WorkSchedule;
+import com.smarthr.smarthr.company.service.WorkScheduleService;
 
 @ExtendWith(MockitoExtension.class)
 class AttendanceServiceTest {
@@ -38,7 +41,13 @@ class AttendanceServiceTest {
     @Mock
     private EmployeeRepository employeeRepository;
 
-    @InjectMocks
+    @Mock
+    private WorkScheduleService workScheduleService;
+
+    // Monday 2026-10-05 08:05, within the default 08:00 start + 10 minute grace period
+    private final Clock clock = Clock.fixed(
+            LocalDateTime.of(2026, 10, 5, 8, 5).atZone(ZoneId.systemDefault()).toInstant(), ZoneId.systemDefault());
+
     private AttendanceService attendanceService;
 
     private EmployeeDetails mockEmployee;
@@ -46,6 +55,9 @@ class AttendanceServiceTest {
 
     @BeforeEach
     void setUp() {
+        attendanceService = new AttendanceService(attendanceRepository, employeeRepository, workScheduleService, clock);
+        lenient().when(workScheduleService.forEmployee(any())).thenReturn(WorkSchedule.defaults());
+
         mockEmployee = EmployeeDetails.builder()
                 .id(1L)
                 .username("john_doe")
@@ -57,7 +69,7 @@ class AttendanceServiceTest {
         mockAttendance = AttendanceEntity.builder()
                 .id(100L)
                 .employee(mockEmployee)
-                .clockIn(LocalDateTime.now().minusHours(8))
+                .clockIn(LocalDateTime.now(clock).minusHours(8))
                 .status("PRESENT")
                 .notes("Morning shift")
                 .build();
@@ -108,6 +120,23 @@ class AttendanceServiceTest {
     }
 
     @Test
+    void testClockIn_AfterGracePeriod_MarksLate() {
+        Clock lateClock = Clock.fixed(
+                LocalDateTime.of(2026, 10, 5, 8, 25).atZone(ZoneId.systemDefault()).toInstant(), ZoneId.systemDefault());
+        attendanceService = new AttendanceService(attendanceRepository, employeeRepository, workScheduleService, lateClock);
+
+        when(employeeRepository.findById(1L)).thenReturn(Optional.of(mockEmployee));
+        when(attendanceRepository.findTopByEmployeeIdAndClockOutIsNullOrderByClockInDesc(1L))
+                .thenReturn(Optional.empty());
+        when(attendanceRepository.save(any(AttendanceEntity.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        AttendanceResponse response = attendanceService.clockIn(ClockInRequest.builder().employeeId(1L).build());
+
+        assertEquals("LATE", response.getStatus());
+        assertEquals(25L, response.getLateMinutes());
+    }
+
+    @Test
     void testClockIn_AlreadyClockedInToday() {
         ClockInRequest request = ClockInRequest.builder()
                 .employeeId(1L)
@@ -132,7 +161,7 @@ class AttendanceServiceTest {
         AttendanceEntity staleSession = AttendanceEntity.builder()
                 .id(99L)
                 .employee(mockEmployee)
-                .clockIn(LocalDateTime.now().minusDays(1))
+                .clockIn(LocalDateTime.now(clock).minusDays(1))
                 .status("PRESENT")
                 .build();
 
@@ -223,8 +252,8 @@ class AttendanceServiceTest {
 
     @Test
     void testGetAttendanceHistory() {
-        LocalDate startDate = LocalDate.now().minusDays(7);
-        LocalDate endDate = LocalDate.now();
+        LocalDate startDate = LocalDate.now(clock).minusDays(7);
+        LocalDate endDate = LocalDate.now(clock);
 
         when(attendanceRepository.findByEmployeeIdAndClockInBetweenOrderByClockInDesc(eq(1L), any(), any()))
                 .thenReturn(List.of(mockAttendance));
@@ -238,8 +267,8 @@ class AttendanceServiceTest {
 
     @Test
     void testGetAttendanceHistory_Paged() {
-        LocalDate startDate = LocalDate.now().minusDays(7);
-        LocalDate endDate = LocalDate.now();
+        LocalDate startDate = LocalDate.now(clock).minusDays(7);
+        LocalDate endDate = LocalDate.now(clock);
         Pageable pageable = PageRequest.of(0, 10);
         Page<AttendanceEntity> pageMock = new PageImpl<>(List.of(mockAttendance), pageable, 1);
 

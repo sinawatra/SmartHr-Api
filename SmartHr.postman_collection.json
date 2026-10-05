@@ -59,7 +59,7 @@
                 "header": [],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n    \"employeeId\" : \"1\",\n    \"periodStart\": \"2026-01-01\",\n    \"periodEnd\" : \"2026-01-31\",\n    \"items\": [{\"criteriaId\": 1, \"score\": 4}]  \n}",
+                  "raw": "{\n    \"employeeId\" : \"18\",\n    \"periodStart\": \"2026-10-01\",\n    \"periodEnd\" : \"2026-10-31\",\n      \"overallComment\": \"Solid quarter, strong teamwork.\",\n    \"items\": [{\"criteriaId\": 1, \"score\": 10},{\"criteriaId\": 2, \"score\": 2} ]  \n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -586,7 +586,7 @@
                   "bearer": [
                     {
                       "key": "token",
-                      "value": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJTaW5hd2F0cmEgUml0aCIsInJvbGUiOiJBRE1JTiIsImlhdCI6MTc4OTAwNjkyMywiZXhwIjoxNzg5MDkzMzIzfQ.0sxaa2qdgXqwBosTJ9HCoJEc_ZElpNOHMqUX0x3SLjT6ly8_RH7Jal1qvwq788xztbf0PGBCr9qrrI1T5e8nWQ",
+                      "value": "{{adminToken}}",
                       "type": "string"
                     }
                   ]
@@ -595,7 +595,7 @@
                 "header": [],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\r\n    \"name\" : \"Noob Noob\",\r\n    \"code\" : \"Noob Noob\",\r\n    \"address\" : \"Phnom Penh Sensok\",\r\n    \"phone\" : \"+85577889990\",\r\n    \"email\" : \"acleda@gmail.com\",\r\n    \"latitute\" : \"007\",\r\n    \"longitude\" : \"007\",\r\n    \"telegramChatId\" : \"-5557264907\"\r\n}",
+                  "raw": "{\r\n    \"name\" : \"KIT Smart HR\",\r\n    \"code\" : \"KIT Smart HR\",\r\n    \"address\" : \"Phnom Penh Sensok\",\r\n    \"phone\" : \"+85577889990\",\r\n    \"email\" : \"kitsmarthr@gmail.com\",\r\n    \"latitute\" : \"007\",\r\n    \"longitude\" : \"007\",\r\n    \"telegramChatId\" : \"-5507694305\",\r\n    \"workStartTime\": \"08:00\",\r\n    \"workEndTime\": \"17:00\",\r\n    \"lateGraceMinutes\": 10,\r\n    \"workingDays\": [\"MONDAY\", \"TUESDAY\", \"WEDNESDAY\", \"THURSDAY\", \"FRIDAY\"]\r\n\r\n    \r\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -1415,6 +1415,88 @@
                       "key": "sortDir",
                       "value": "desc",
                       "disabled": true
+                    }
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Scoring",
+          "item": [
+            {
+              "name": "ScoreMe",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{adminToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/attendance/score",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "attendance",
+                    "score"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Score Employee",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": ""
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "highest score first Listing",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{adminToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/attendance/score?month=2026-10",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "attendance",
+                    "score"
+                  ],
+                  "query": [
+                    {
+                      "key": "month",
+                      "value": "2026-10"
                     }
                   ]
                 }

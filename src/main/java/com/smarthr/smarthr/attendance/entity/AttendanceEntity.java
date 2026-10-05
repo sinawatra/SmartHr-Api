@@ -61,8 +61,11 @@ public class AttendanceEntity {
     @Column(name = "late_minutes")
     private Long lateMinutes;
 
-    @Column(name = "overtime_hours")
-    private Long overtimeHours;
+    @Column(name = "early_leave_minutes")
+    private Long earlyLeaveMinutes;
+
+    @Column(name = "overtime_minutes")
+    private Long overtimeMinutes;
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)

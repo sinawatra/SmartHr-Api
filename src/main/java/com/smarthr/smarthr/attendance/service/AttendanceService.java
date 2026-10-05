@@ -1,5 +1,6 @@
 package com.smarthr.smarthr.attendance.service;
 
+import java.time.Clock;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -20,6 +21,8 @@ import com.smarthr.smarthr.attendance.dto.ClockInRequest;
 import com.smarthr.smarthr.attendance.dto.ClockOutRequest;
 import com.smarthr.smarthr.attendance.dto.AttendanceResponse;
 import com.smarthr.smarthr.common.dto.PagedResponse;
+import com.smarthr.smarthr.company.entity.WorkSchedule;
+import com.smarthr.smarthr.company.service.WorkScheduleService;
 
 /**
  * Service class handling attendance business logic.
@@ -30,10 +33,15 @@ import com.smarthr.smarthr.common.dto.PagedResponse;
 public class AttendanceService {
     private final AttendanceRepository attendanceRepository;
     private final EmployeeRepository employeeRepository;
+    private final WorkScheduleService workScheduleService;
+    private final Clock clock;
 
-    public AttendanceService(AttendanceRepository attendanceRepository, EmployeeRepository employeeRepository) {
+    public AttendanceService(AttendanceRepository attendanceRepository, EmployeeRepository employeeRepository,
+            WorkScheduleService workScheduleService, Clock clock) {
         this.attendanceRepository = attendanceRepository;
         this.employeeRepository = employeeRepository;
+        this.workScheduleService = workScheduleService;
+        this.clock = clock;
     }
 
     /**
@@ -44,7 +52,7 @@ public class AttendanceService {
         EmployeeDetails employee = employeeRepository.findById(request.getEmployeeId())
                 .orElseThrow(() -> new IllegalArgumentException("Employee not found with ID: " + request.getEmployeeId()));
 
-        LocalDate today = LocalDate.now();
+        LocalDate today = LocalDate.now(clock);
 
         // Check if employee already has an unclosed session from TODAY (clocked in without clocking out).
         // A session left open from a previous day is a missed clock-out; it stays open as-is
@@ -64,10 +72,14 @@ public class AttendanceService {
             throw new IllegalStateException("Employee has already clocked in today");
         }
 
+        LocalDateTime now = LocalDateTime.now(clock);
+        long lateMinutes = workScheduleService.forEmployee(employee).lateMinutes(now);
+
         AttendanceEntity attendance = new AttendanceEntity();
         attendance.setEmployee(employee);
-        attendance.setClockIn(LocalDateTime.now());
-        attendance.setStatus("PRESENT");
+        attendance.setClockIn(now);
+        attendance.setLateMinutes(lateMinutes);
+        attendance.setStatus(lateMinutes > 0 ? "LATE" : "PRESENT");
         if (request.getNotes() != null) attendance.setNotes(request.getNotes());
 
         AttendanceEntity saved = attendanceRepository.save(attendance);
@@ -83,12 +95,16 @@ public class AttendanceService {
                 .findTopByEmployeeIdAndClockOutIsNullOrderByClockInDesc(request.getEmployeeId())
                 .orElseThrow(() -> new IllegalStateException("No active clock-in record found for employee ID: " + request.getEmployeeId() + "Please go Clock In First befoer you can go Clock Out"));
 
-        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime now = LocalDateTime.now(clock);
         attendance.setClockOut(now);
 
         // Calculate total shift duration in minutes
         long durationMinutes = Duration.between(attendance.getClockIn(), now).toMinutes();
         attendance.setWorkDurationMinutes(durationMinutes);
+
+        WorkSchedule schedule = workScheduleService.forEmployee(attendance.getEmployee());
+        attendance.setEarlyLeaveMinutes(schedule.earlyLeaveMinutes(attendance.getClockIn(), now));
+        attendance.setOvertimeMinutes(schedule.overtimeMinutes(attendance.getClockIn(), now));
         attendance.setStatus("COMPLETED");
 
         if (request.getNotes() != null && !request.getNotes().isBlank()) {
@@ -156,6 +172,9 @@ public class AttendanceService {
         res.setWorkDurationMinutes(entity.getWorkDurationMinutes());
         res.setStatus(entity.getStatus());
         res.setNotes(entity.getNotes());
+        res.setLateMinutes(entity.getLateMinutes());
+        res.setEarlyLeaveMinutes(entity.getEarlyLeaveMinutes());
+        res.setOvertimeMinutes(entity.getOvertimeMinutes());
         return res;
     }
 }
