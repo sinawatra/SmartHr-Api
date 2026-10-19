@@ -28,9 +28,13 @@ import com.smarthr.smarthr.employee.repository.EmployeeRepository;
 import com.smarthr.smarthr.attendance.dto.ClockInRequest;
 import com.smarthr.smarthr.attendance.dto.ClockOutRequest;
 import com.smarthr.smarthr.attendance.dto.AttendanceResponse;
+import com.smarthr.smarthr.attendance.dto.TodayAttendanceResponse;
 import com.smarthr.smarthr.common.dto.PagedResponse;
 import com.smarthr.smarthr.company.entity.WorkSchedule;
 import com.smarthr.smarthr.company.service.WorkScheduleService;
+import com.smarthr.smarthr.leave.entity.LeaveRequestEntity;
+import com.smarthr.smarthr.leave.entity.LeaveStatus;
+import com.smarthr.smarthr.leave.repository.LeaveRequestRepository;
 
 @ExtendWith(MockitoExtension.class)
 class AttendanceServiceTest {
@@ -44,6 +48,9 @@ class AttendanceServiceTest {
     @Mock
     private WorkScheduleService workScheduleService;
 
+    @Mock
+    private LeaveRequestRepository leaveRequestRepository;
+
     // Monday 2026-10-05 08:05, within the default 08:00 start + 10 minute grace period
     private final Clock clock = Clock.fixed(
             LocalDateTime.of(2026, 10, 5, 8, 5).atZone(ZoneId.systemDefault()).toInstant(), ZoneId.systemDefault());
@@ -55,7 +62,7 @@ class AttendanceServiceTest {
 
     @BeforeEach
     void setUp() {
-        attendanceService = new AttendanceService(attendanceRepository, employeeRepository, workScheduleService, clock);
+        attendanceService = new AttendanceService(attendanceRepository, employeeRepository, workScheduleService, leaveRequestRepository, clock);
         lenient().when(workScheduleService.forEmployee(any())).thenReturn(WorkSchedule.defaults());
 
         mockEmployee = EmployeeDetails.builder()
@@ -123,7 +130,7 @@ class AttendanceServiceTest {
     void testClockIn_AfterGracePeriod_MarksLate() {
         Clock lateClock = Clock.fixed(
                 LocalDateTime.of(2026, 10, 5, 8, 25).atZone(ZoneId.systemDefault()).toInstant(), ZoneId.systemDefault());
-        attendanceService = new AttendanceService(attendanceRepository, employeeRepository, workScheduleService, lateClock);
+        attendanceService = new AttendanceService(attendanceRepository, employeeRepository, workScheduleService, leaveRequestRepository, lateClock);
 
         when(employeeRepository.findById(1L)).thenReturn(Optional.of(mockEmployee));
         when(attendanceRepository.findTopByEmployeeIdAndClockOutIsNullOrderByClockInDesc(1L))
@@ -282,5 +289,98 @@ class AttendanceServiceTest {
         assertEquals(0, history.getPageNumber());
         assertEquals(10, history.getPageSize());
         assertEquals(1, history.getTotalElements());
+    }
+
+    @Test
+    void testGetTodayStatus_NotClockedIn() {
+        when(employeeRepository.findById(1L)).thenReturn(Optional.of(mockEmployee));
+
+        TodayAttendanceResponse response = attendanceService.getTodayStatus(1L);
+
+        assertEquals(TodayAttendanceResponse.Status.NOT_CLOCKED_IN, response.getStatus());
+        assertEquals(LocalDate.of(2026, 10, 5), response.getDate());
+        assertTrue(response.isWorkingDay());
+        assertNull(response.getClockIn());
+    }
+
+    @Test
+    void testGetTodayStatus_ClockedIn() {
+        AttendanceEntity today = AttendanceEntity.builder()
+                .id(101L)
+                .employee(mockEmployee)
+                .clockIn(LocalDateTime.of(2026, 10, 5, 7, 55))
+                .lateMinutes(0L)
+                .status("PRESENT")
+                .build();
+        when(employeeRepository.findById(1L)).thenReturn(Optional.of(mockEmployee));
+        when(attendanceRepository.findByEmployeeIdAndClockInBetweenOrderByClockInDesc(eq(1L), any(), any()))
+                .thenReturn(List.of(today));
+
+        TodayAttendanceResponse response = attendanceService.getTodayStatus(1L);
+
+        assertEquals(TodayAttendanceResponse.Status.CLOCKED_IN, response.getStatus());
+        assertEquals(101L, response.getAttendanceId());
+        assertEquals(today.getClockIn(), response.getClockIn());
+        assertNull(response.getClockOut());
+        assertFalse(response.isLate());
+        assertEquals(10L, response.getWorkDurationMinutes());
+    }
+
+    @Test
+    void testGetTodayStatus_ClockedOut() {
+        AttendanceEntity today = AttendanceEntity.builder()
+                .id(101L)
+                .employee(mockEmployee)
+                .clockIn(LocalDateTime.of(2026, 10, 5, 8, 20))
+                .clockOut(LocalDateTime.of(2026, 10, 5, 17, 0))
+                .lateMinutes(20L)
+                .workDurationMinutes(520L)
+                .status("COMPLETED")
+                .build();
+        when(employeeRepository.findById(1L)).thenReturn(Optional.of(mockEmployee));
+        when(attendanceRepository.findByEmployeeIdAndClockInBetweenOrderByClockInDesc(eq(1L), any(), any()))
+                .thenReturn(List.of(today));
+
+        TodayAttendanceResponse response = attendanceService.getTodayStatus(1L);
+
+        assertEquals(TodayAttendanceResponse.Status.CLOCKED_OUT, response.getStatus());
+        assertEquals(today.getClockOut(), response.getClockOut());
+        assertTrue(response.isLate());
+        assertEquals(20L, response.getLateMinutes());
+        assertEquals(520L, response.getWorkDurationMinutes());
+    }
+
+    @Test
+    void testGetTodayStatus_OnLeave() {
+        when(employeeRepository.findById(1L)).thenReturn(Optional.of(mockEmployee));
+        when(leaveRequestRepository.findByEmployeeIdAndStatusAndStartDateLessThanEqualAndEndDateGreaterThanEqual(
+                eq(1L), eq(LeaveStatus.APPROVED), any(), any()))
+                .thenReturn(List.of(new LeaveRequestEntity()));
+
+        TodayAttendanceResponse response = attendanceService.getTodayStatus(1L);
+
+        assertEquals(TodayAttendanceResponse.Status.ON_LEAVE, response.getStatus());
+        assertTrue(response.isOnLeave());
+    }
+
+    @Test
+    void testGetTodayStatus_DayOff() {
+        // Saturday
+        Clock weekend = Clock.fixed(
+                LocalDateTime.of(2026, 10, 10, 10, 0).atZone(ZoneId.systemDefault()).toInstant(), ZoneId.systemDefault());
+        attendanceService = new AttendanceService(attendanceRepository, employeeRepository, workScheduleService, leaveRequestRepository, weekend);
+        when(employeeRepository.findById(1L)).thenReturn(Optional.of(mockEmployee));
+
+        TodayAttendanceResponse response = attendanceService.getTodayStatus(1L);
+
+        assertEquals(TodayAttendanceResponse.Status.DAY_OFF, response.getStatus());
+        assertFalse(response.isWorkingDay());
+    }
+
+    @Test
+    void testGetTodayStatus_EmployeeNotFound() {
+        when(employeeRepository.findById(999L)).thenReturn(Optional.empty());
+
+        assertThrows(IllegalArgumentException.class, () -> attendanceService.getTodayStatus(999L));
     }
 }

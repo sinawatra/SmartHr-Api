@@ -9,6 +9,8 @@ import java.time.LocalDate;
 import java.time.YearMonth;
 import java.time.format.DateTimeParseException;
 
+import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -27,6 +29,7 @@ import com.smarthr.smarthr.attendance.dto.ClockInRequest;
 import com.smarthr.smarthr.attendance.dto.ClockOutRequest;
 import com.smarthr.smarthr.attendance.dto.AttendanceResponse;
 import com.smarthr.smarthr.attendance.dto.AttendanceScoreResponse;
+import com.smarthr.smarthr.attendance.dto.TodayAttendanceResponse;
 import com.smarthr.smarthr.common.dto.ApiResponse;
 import com.smarthr.smarthr.common.dto.PagedResponse;
 import com.smarthr.smarthr.attendance.service.AttendanceScoreService;
@@ -38,14 +41,10 @@ import com.smarthr.smarthr.attendance.service.AttendanceService;
  */
 @RestController
 @RequestMapping("/api/v1/attendance")
+@RequiredArgsConstructor
 public class AttendanceController {
 private final AttendanceService attendanceService;
     private final AttendanceScoreService attendanceScoreService;
-
-    public AttendanceController(AttendanceService attendanceService, AttendanceScoreService attendanceScoreService) {
-        this.attendanceService = attendanceService;
-        this.attendanceScoreService = attendanceScoreService;
-    }
 
     @PostMapping("/clock-in")
     @PreAuthorize("hasAnyAuthority('USER', 'ADMIN')")
@@ -57,6 +56,16 @@ private final AttendanceService attendanceService;
     @PreAuthorize("hasAnyAuthority('USER', 'ADMIN')")
     public ResponseEntity<ApiResponse<AttendanceResponse>> clockOut(@RequestBody ClockOutRequest request) {
         return ResponseEntity.ok(ApiResponse.success("Clocked out successfully", attendanceService.clockOut(request)));
+    }
+
+    /**
+     * Today's attendance status (NOT_CLOCKED_IN, CLOCKED_IN, CLOCKED_OUT, ON_LEAVE, DAY_OFF)
+     * with clock-in/out times, for the bot and web app.
+     */
+    @GetMapping("/today/{employeeId}")
+    public ResponseEntity<ApiResponse<TodayAttendanceResponse>> getTodayStatus(@PathVariable Long employeeId) {
+        return ResponseEntity.ok(ApiResponse.success("Today's attendance retrieved successfully",
+                attendanceService.getTodayStatus(employeeId)));
     }
 
    @GetMapping("/history/{employeeId}")

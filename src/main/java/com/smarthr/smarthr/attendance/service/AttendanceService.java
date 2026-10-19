@@ -20,9 +20,12 @@ import com.smarthr.smarthr.employee.repository.EmployeeRepository;
 import com.smarthr.smarthr.attendance.dto.ClockInRequest;
 import com.smarthr.smarthr.attendance.dto.ClockOutRequest;
 import com.smarthr.smarthr.attendance.dto.AttendanceResponse;
+import com.smarthr.smarthr.attendance.dto.TodayAttendanceResponse;
 import com.smarthr.smarthr.common.dto.PagedResponse;
 import com.smarthr.smarthr.company.entity.WorkSchedule;
 import com.smarthr.smarthr.company.service.WorkScheduleService;
+import com.smarthr.smarthr.leave.entity.LeaveStatus;
+import com.smarthr.smarthr.leave.repository.LeaveRequestRepository;
 
 /**
  * Service class handling attendance business logic.
@@ -34,13 +37,15 @@ public class AttendanceService {
     private final AttendanceRepository attendanceRepository;
     private final EmployeeRepository employeeRepository;
     private final WorkScheduleService workScheduleService;
+    private final LeaveRequestRepository leaveRequestRepository;
     private final Clock clock;
 
     public AttendanceService(AttendanceRepository attendanceRepository, EmployeeRepository employeeRepository,
-            WorkScheduleService workScheduleService, Clock clock) {
+            WorkScheduleService workScheduleService, LeaveRequestRepository leaveRequestRepository, Clock clock) {
         this.attendanceRepository = attendanceRepository;
         this.employeeRepository = employeeRepository;
         this.workScheduleService = workScheduleService;
+        this.leaveRequestRepository = leaveRequestRepository;
         this.clock = clock;
     }
 
@@ -126,6 +131,64 @@ public class AttendanceService {
         return attendanceRepository
                 .findTopByEmployeeIdAndClockOutIsNullOrderByClockInDesc(employeeId)
                 .map(this::mapToResponse);
+    }
+
+    /**
+     * Today's attendance status and clock-in/out times for an employee
+     */
+    @Transactional(readOnly = true)
+    public TodayAttendanceResponse getTodayStatus(Long employeeId) {
+        EmployeeDetails employee = employeeRepository.findById(employeeId)
+                .orElseThrow(() -> new IllegalArgumentException("Employee not found with ID: " + employeeId));
+
+        LocalDate today = LocalDate.now(clock);
+        WorkSchedule schedule = workScheduleService.forEmployee(employee);
+        boolean workingDay = schedule.isWorkingDay(today);
+        boolean onLeave = !leaveRequestRepository
+                .findByEmployeeIdAndStatusAndStartDateLessThanEqualAndEndDateGreaterThanEqual(
+                        employeeId, LeaveStatus.APPROVED, today, today)
+                .isEmpty();
+
+        // Only one clock-in is allowed per day, so the earliest record is today's
+        Optional<AttendanceEntity> attendance = attendanceRepository
+                .findByEmployeeIdAndClockInBetweenOrderByClockInDesc(employeeId, today.atStartOfDay(), today.atTime(23, 59, 59))
+                .stream()
+                .reduce((newer, older) -> older);
+
+        TodayAttendanceResponse.TodayAttendanceResponseBuilder res = TodayAttendanceResponse.builder()
+                .employeeId(employee.getId())
+                .employeeName(employee.getFirstName() + " " + employee.getLastName())
+                .date(today)
+                .workingDay(workingDay)
+                .onLeave(onLeave)
+                .scheduledStart(schedule.startTime())
+                .scheduledEnd(schedule.endTime());
+
+        if (attendance.isEmpty()) {
+            TodayAttendanceResponse.Status status = onLeave ? TodayAttendanceResponse.Status.ON_LEAVE
+                    : !workingDay ? TodayAttendanceResponse.Status.DAY_OFF
+                    : TodayAttendanceResponse.Status.NOT_CLOCKED_IN;
+            return res.status(status).build();
+        }
+
+        AttendanceEntity record = attendance.get();
+        // Records created before late tracking existed have no stored value
+        long lateMinutes = record.getLateMinutes() != null ? record.getLateMinutes() : schedule.lateMinutes(record.getClockIn());
+        Long workDurationMinutes = record.getClockOut() != null
+                ? record.getWorkDurationMinutes()
+                : Duration.between(record.getClockIn(), LocalDateTime.now(clock)).toMinutes();
+
+        return res
+                .status(record.getClockOut() == null ? TodayAttendanceResponse.Status.CLOCKED_IN : TodayAttendanceResponse.Status.CLOCKED_OUT)
+                .attendanceId(record.getId())
+                .clockIn(record.getClockIn())
+                .clockOut(record.getClockOut())
+                .late(lateMinutes > 0)
+                .lateMinutes(lateMinutes)
+                .earlyLeaveMinutes(record.getEarlyLeaveMinutes())
+                .overtimeMinutes(record.getOvertimeMinutes())
+                .workDurationMinutes(workDurationMinutes)
+                .build();
     }
 
     /**
