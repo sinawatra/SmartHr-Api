@@ -52,6 +52,26 @@ public class EvaluationEntity {
     @Column(name = "overall_comment", columnDefinition = "TEXT")
     private String overallComment;
 
+    // Manager's recommendation, only set for end-of-probation evaluations
+    @Enumerated(EnumType.STRING)
+    @Column(name = "probation_recommendation")
+    private ProbationRecommendation probationRecommendation;
+
+    // HR's final decision on a probation evaluation
+    @Enumerated(EnumType.STRING)
+    @Column(name = "hr_decision")
+    private ProbationRecommendation hrDecision;
+
+    @Column(name = "hr_comment", columnDefinition = "TEXT")
+    private String hrComment;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "hr_decided_by", referencedColumnName = "id")
+    private EmployeeDetails hrDecidedBy;
+
+    @Column(name = "hr_decided_at")
+    private LocalDateTime hrDecidedAt;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 

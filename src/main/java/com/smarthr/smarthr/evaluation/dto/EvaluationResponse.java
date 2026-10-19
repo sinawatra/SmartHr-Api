@@ -27,6 +27,12 @@ public class EvaluationResponse {
     private LocalDate periodEnd;
     private String status;
     private String overallComment;
+    private String probationRecommendation;
+    private String hrDecision;
+    private String hrComment;
+    private Long hrDecidedById;
+    private String hrDecidedByName;
+    private LocalDateTime hrDecidedAt;
     private Double overallScore;
     private List<EvaluationItemResponse> items;
     private LocalDateTime createdAt;

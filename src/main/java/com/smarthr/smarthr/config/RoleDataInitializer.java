@@ -12,14 +12,14 @@ import com.smarthr.smarthr.role.repository.RoleRepository;
 import lombok.RequiredArgsConstructor;
 
 /**
- * Seeds the base set of roles (USER, ADMIN) into the database if missing.
+ * Seeds the base set of roles (USER, ADMIN, LINE_MANAGER, HR) into the database if missing.
  */
 @Component
 @Order(1)
 @RequiredArgsConstructor
 public class RoleDataInitializer implements CommandLineRunner {
 
-    private static final List<String> DEFAULT_ROLES = List.of("USER", "ADMIN", "LINE_MANAGER");
+    private static final List<String> DEFAULT_ROLES = List.of("USER", "ADMIN", "LINE_MANAGER", "HR");
 
     private final RoleRepository roleRepository;
 

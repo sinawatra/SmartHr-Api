@@ -59,7 +59,7 @@
                 "header": [],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n    \"employeeId\" : \"18\",\n    \"periodStart\": \"2026-10-01\",\n    \"periodEnd\" : \"2026-10-31\",\n      \"overallComment\": \"Solid quarter, strong teamwork.\",\n    \"items\": [{\"criteriaId\": 1, \"score\": 10},{\"criteriaId\": 2, \"score\": 2} ]  \n}",
+                  "raw": "{\n    \"employeeId\": 18,\n    \"periodStart\": \"2026-10-01\",\n    \"periodEnd\": \"2026-10-31\",\n    \"overallComment\": \"Solid quarter, strong teamwork.\",\n    \"probationRecommendation\": \"PASS\",\n    \"items\": [\n        {\n            \"criteriaId\": 1,\n            \"score\": 4\n        },\n        {\n            \"criteriaId\": 2,\n            \"score\": 3\n        }\n    ]\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -76,7 +76,173 @@
                     "v1",
                     "evaluations"
                   ]
-                }
+                },
+                "description": "Manager (LINE_MANAGER or ADMIN) submits an evaluation. probationRecommendation is optional: PASS, FAIL or DELAY (case-insensitive). When set, the evaluation goes to HR for confirmation."
+              },
+              "response": []
+            },
+            {
+              "name": "Pending HR Confirmation",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{adminToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/evaluations/probation/pending?page=0&size=10",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "evaluations",
+                    "probation",
+                    "pending"
+                  ],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "0"
+                    },
+                    {
+                      "key": "size",
+                      "value": "10"
+                    }
+                  ]
+                },
+                "description": "HR/ADMIN: probation evaluations submitted by managers and waiting for HR to confirm, oldest first."
+              },
+              "response": []
+            },
+            {
+              "name": "HR Confirm Probation - Pass",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{adminToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/evaluations/1/confirm",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "evaluations",
+                    "1",
+                    "confirm"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"decision\": \"PASS\",\n    \"comment\": \"Confirmed as full staff.\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "description": "HR/ADMIN final decision. PASS: employment status becomes FullStaff."
+              },
+              "response": []
+            },
+            {
+              "name": "HR Confirm Probation - Fail",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{adminToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/evaluations/1/confirm",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "evaluations",
+                    "1",
+                    "confirm"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"decision\": \"FAIL\",\n    \"comment\": \"Did not meet expectations.\",\n    \"lastWorkingDate\": \"2026-10-31\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "description": "HR/ADMIN final decision. FAIL: employment status becomes Terminated; lastWorkingDate is optional and defaults to today."
+              },
+              "response": []
+            },
+            {
+              "name": "HR Confirm Probation - Delay",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{adminToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/evaluations/1/confirm",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "evaluations",
+                    "1",
+                    "confirm"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"decision\": \"DELAY\",\n    \"comment\": \"Extend probation by three months.\",\n    \"newProbationEndDate\": \"2027-01-31\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "description": "HR/ADMIN final decision. DELAY: stays on probation; newProbationEndDate is required and must be after the current end date and today."
               },
               "response": []
             },
@@ -1631,6 +1797,38 @@
                     "clock-out"
                   ]
                 }
+              },
+              "response": []
+            },
+            {
+              "name": "Today Attendance",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{userToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/attendance/today/7",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "attendance",
+                    "today",
+                    "7"
+                  ]
+                },
+                "description": "Today's status (NOT_CLOCKED_IN, CLOCKED_IN, CLOCKED_OUT, ON_LEAVE, DAY_OFF) with clock-in/out times, for the bot and web app."
               },
               "response": []
             },

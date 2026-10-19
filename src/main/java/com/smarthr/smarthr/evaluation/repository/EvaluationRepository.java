@@ -19,4 +19,7 @@ public interface EvaluationRepository extends JpaRepository<EvaluationEntity, Lo
     Page<EvaluationEntity> findByEvaluatorId(Long evaluatorId, Pageable pageable);
 
     Page<EvaluationEntity> findByStatus(EvaluationStatus status, Pageable pageable);
+
+    // Probation evaluations waiting for HR to confirm
+    Page<EvaluationEntity> findByStatusAndProbationRecommendationIsNotNull(EvaluationStatus status, Pageable pageable);
 }

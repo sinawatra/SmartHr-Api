@@ -1,11 +1,16 @@
 package com.smarthr.smarthr.evaluation.service;
 
+import java.time.Clock;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -13,14 +18,18 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.smarthr.smarthr.common.dto.PagedResponse;
 import com.smarthr.smarthr.employee.entity.EmployeeDetails;
+import com.smarthr.smarthr.employee.entity.EmployementStatus;
 import com.smarthr.smarthr.evaluation.entity.EvaluationCriteriaEntity;
 import com.smarthr.smarthr.evaluation.entity.EvaluationEntity;
 import com.smarthr.smarthr.evaluation.entity.EvaluationItemEntity;
 import com.smarthr.smarthr.evaluation.entity.EvaluationStatus;
+import com.smarthr.smarthr.evaluation.entity.ProbationRecommendation;
 import com.smarthr.smarthr.employee.repository.EmployeeRepository;
 import com.smarthr.smarthr.evaluation.repository.EvaluationCriteriaRepository;
 import com.smarthr.smarthr.evaluation.repository.EvaluationRepository;
+import com.smarthr.smarthr.evaluation.dto.ConfirmProbationRequest;
 import com.smarthr.smarthr.evaluation.dto.EvaluationItemRequest;
 import com.smarthr.smarthr.evaluation.dto.SubmitEvaluationRequest;
 import com.smarthr.smarthr.evaluation.dto.EvaluationItemResponse;
@@ -38,6 +47,7 @@ public class EvaluationService {
     private final EmployeeRepository employeeRepository;
     private final EvaluationCriteriaRepository evaluationCriteriaRepository;
     private final EvaluationRepository evaluationRepository;
+    private final Clock clock;
 
     /**
      * Submit a completed evaluation for an employee.
@@ -89,6 +99,7 @@ public class EvaluationService {
         evaluation.setPeriodStart(request.getPeriodStart());
         evaluation.setPeriodEnd(request.getPeriodEnd());
         evaluation.setOverallComment(request.getOverallComment());
+        evaluation.setProbationRecommendation(request.getProbationRecommendation());
         evaluation.setStatus(EvaluationStatus.SUBMITTED);
 
         for (EvaluationItemEntity item : items) {
@@ -98,6 +109,86 @@ public class EvaluationService {
 
         EvaluationEntity saved = evaluationRepository.save(evaluation);
         return mapToResponse(saved);
+    }
+
+    /**
+     * Probation evaluations submitted by managers and waiting for HR to confirm, oldest first.
+     */
+    @Transactional(readOnly = true)
+    public PagedResponse<EvaluationResponse> getPendingProbationConfirmations(Pageable pageable) {
+        Page<EvaluationEntity> page = evaluationRepository
+                .findByStatusAndProbationRecommendationIsNotNull(EvaluationStatus.SUBMITTED, pageable);
+        List<EvaluationResponse> content = page.getContent().stream()
+                .map(this::mapToResponse)
+                .collect(Collectors.toList());
+        return PagedResponse.of(page, content);
+    }
+
+    /**
+     * HR's final probation decision on a submitted evaluation. HR may follow or override the
+     * manager's recommendation, and the decision is applied to the employee:
+     * <ul>
+     *   <li>PASS: employment status becomes FullStaff</li>
+     *   <li>FAIL: employment status becomes Terminated, ending on {@code lastWorkingDate} (default today)</li>
+     *   <li>DELAY: stays on probation, with the probation end date moved to {@code newProbationEndDate}</li>
+     * </ul>
+     */
+    @Transactional
+    public EvaluationResponse confirmProbation(Long evaluationId, ConfirmProbationRequest request) {
+        EvaluationEntity evaluation = evaluationRepository.findById(evaluationId)
+                .orElseThrow(() -> new IllegalArgumentException("Evaluation not found with ID: " + evaluationId));
+
+        if (evaluation.getProbationRecommendation() == null) {
+            throw new IllegalArgumentException("Evaluation " + evaluationId + " is not a probation evaluation.");
+        }
+        if (evaluation.getStatus() == EvaluationStatus.CONFIRMED) {
+            throw new IllegalStateException("Evaluation " + evaluationId + " has already been confirmed as "
+                    + evaluation.getHrDecision() + ".");
+        }
+        if (evaluation.getStatus() != EvaluationStatus.SUBMITTED) {
+            throw new IllegalStateException("Evaluation " + evaluationId + " has not been submitted by the manager yet.");
+        }
+
+        EmployeeDetails employee = evaluation.getEmployee();
+        if (employee.getEmployeeStatus() != EmployementStatus.Probation) {
+            throw new IllegalStateException("Employee " + employee.getId() + " is not on probation (status: "
+                    + employee.getEmployeeStatus() + ").");
+        }
+
+        EmployeeDetails hr = currentEmployee();
+        if (hr.getId().equals(employee.getId())) {
+            throw new AccessDeniedException("You cannot confirm your own probation.");
+        }
+
+        LocalDate today = LocalDate.now(clock);
+        ProbationRecommendation decision = request.getDecision();
+        switch (decision) {
+            case PASS -> employee.setEmployeeStatus(EmployementStatus.FullStaff);
+            case FAIL -> {
+                employee.setEmployeeStatus(EmployementStatus.Terminated);
+                employee.setEndDate(request.getLastWorkingDate() != null ? request.getLastWorkingDate() : today);
+            }
+            case DELAY -> {
+                LocalDate newEndDate = request.getNewProbationEndDate();
+                if (newEndDate == null) {
+                    throw new IllegalArgumentException("New probation end date is required to delay probation.");
+                }
+                LocalDate currentEndDate = employee.getProbationEndDate();
+                if (!newEndDate.isAfter(currentEndDate != null && currentEndDate.isAfter(today) ? currentEndDate : today)) {
+                    throw new IllegalArgumentException("New probation end date must be after the current probation end date and today.");
+                }
+                employee.setProbationEndDate(newEndDate);
+            }
+        }
+        employeeRepository.save(employee);
+
+        evaluation.setHrDecision(decision);
+        evaluation.setHrComment(request.getComment());
+        evaluation.setHrDecidedBy(hr);
+        evaluation.setHrDecidedAt(LocalDateTime.now(clock));
+        evaluation.setStatus(EvaluationStatus.CONFIRMED);
+
+        return mapToResponse(evaluationRepository.save(evaluation));
     }
 
     private EvaluationResponse mapToResponse(EvaluationEntity entity) {
@@ -125,6 +216,13 @@ public class EvaluationService {
                 .periodEnd(entity.getPeriodEnd())
                 .status(entity.getStatus().name())
                 .overallComment(entity.getOverallComment())
+                .probationRecommendation(entity.getProbationRecommendation() != null
+                        ? entity.getProbationRecommendation().name() : null)
+                .hrDecision(entity.getHrDecision() != null ? entity.getHrDecision().name() : null)
+                .hrComment(entity.getHrComment())
+                .hrDecidedById(entity.getHrDecidedBy() != null ? entity.getHrDecidedBy().getId() : null)
+                .hrDecidedByName(entity.getHrDecidedBy() != null ? displayName(entity.getHrDecidedBy()) : null)
+                .hrDecidedAt(entity.getHrDecidedAt())
                 .overallScore(overallScore)
                 .items(items)
                 .createdAt(entity.getCreatedAt())

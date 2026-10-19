@@ -7,6 +7,8 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 
+import com.smarthr.smarthr.evaluation.entity.ProbationRecommendation;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -29,6 +31,9 @@ public class SubmitEvaluationRequest {
     private LocalDate periodEnd;
 
     private String overallComment;
+
+    // PASS, FAIL or DELAY (case-insensitive); only for end-of-probation evaluations
+    private ProbationRecommendation probationRecommendation;
 
     @NotEmpty(message = "At least one scored criterion is required")
     @Valid
