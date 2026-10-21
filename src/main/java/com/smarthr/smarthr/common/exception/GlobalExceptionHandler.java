@@ -1,5 +1,6 @@
 package com.smarthr.smarthr.common.exception;
 
+import org.springframework.core.NestedExceptionUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -10,6 +11,9 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.smarthr.smarthr.common.dto.ApiResponse;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -69,9 +73,18 @@ public class GlobalExceptionHandler {
                 .body(ApiResponse.error(ex.getMessage()));
     }
 
+    // Unexpected errors: log the full stack trace and surface the root cause,
+    // e.g. the real DB error behind "Could not open JPA EntityManager"
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<Void>> handleGenericException(Exception ex) {
+        Throwable rootCause = NestedExceptionUtils.getMostSpecificCause(ex);
+        log.error("Unhandled exception: {}", ex.getMessage(), ex);
+
+        String message = "An error occurred: " + ex.getMessage();
+        if (rootCause != ex) {
+            message += " (cause: " + rootCause.getMessage() + ")";
+        }
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(ApiResponse.error("An error occurred: " + ex.getMessage()));
+                .body(ApiResponse.error(message));
     }
 }
