@@ -2,6 +2,9 @@ package com.smarthr.smarthr.evaluation.service;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.contains;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 import java.time.Clock;
@@ -32,6 +35,8 @@ import com.smarthr.smarthr.evaluation.entity.EvaluationStatus;
 import com.smarthr.smarthr.evaluation.entity.ProbationRecommendation;
 import com.smarthr.smarthr.evaluation.repository.EvaluationCriteriaRepository;
 import com.smarthr.smarthr.evaluation.repository.EvaluationRepository;
+import com.smarthr.smarthr.notification.entity.NotificationType;
+import com.smarthr.smarthr.notification.service.NotificationService;
 
 @ExtendWith(MockitoExtension.class)
 class EvaluationServiceTest {
@@ -44,6 +49,9 @@ class EvaluationServiceTest {
 
     @Mock
     private EvaluationRepository evaluationRepository;
+
+    @Mock
+    private NotificationService notificationService;
 
     // 2026-10-19
     private final Clock clock = Clock.fixed(
@@ -58,7 +66,7 @@ class EvaluationServiceTest {
 
     @BeforeEach
     void setUp() {
-        evaluationService = new EvaluationService(employeeRepository, evaluationCriteriaRepository, evaluationRepository, clock);
+        evaluationService = new EvaluationService(employeeRepository, evaluationCriteriaRepository, evaluationRepository, notificationService, clock);
 
         manager = EmployeeDetails.builder().id(2L).username("manager").firstName("Mary").lastName("Manager").build();
         hr = EmployeeDetails.builder().id(3L).username("hr").firstName("Harry").lastName("HR").build();
@@ -106,6 +114,10 @@ class EvaluationServiceTest {
         assertEquals(3L, response.getHrDecidedById());
         assertEquals(LocalDateTime.of(2026, 10, 19, 10, 0), response.getHrDecidedAt());
         verify(employeeRepository).save(employee);
+        verify(notificationService).notify(eq(employee), eq(NotificationType.PROBATION_DECIDED), anyString(),
+                contains("passed your probation"), eq(10L));
+        verify(notificationService).notifyManagerOf(eq(employee), eq(NotificationType.PROBATION_DECIDED), anyString(),
+                contains("John Doe has passed probation"), eq(10L));
     }
 
     @Test

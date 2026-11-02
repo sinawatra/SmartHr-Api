@@ -26,6 +26,9 @@ import com.smarthr.smarthr.common.dto.PagedResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import com.smarthr.smarthr.common.service.TelegramService;
+import com.smarthr.smarthr.employee.entity.EmployementStatus;
+import com.smarthr.smarthr.notification.entity.NotificationType;
+import com.smarthr.smarthr.notification.service.NotificationService;
 
 @Service
 @Slf4j
@@ -38,6 +41,9 @@ public class AnnouncementService {
     private final CompanyRepository companyRepository;
     private final DepartmentRepository departmentRepository;
     private final TelegramService telegramService;
+    private final NotificationService notificationService;
+
+    private static final int ANNOUNCEMENT_PREVIEW_LENGTH = 200;
 
     /**
      * Create announcement for current authenticated user obtained via SecurityContextHolder.
@@ -75,6 +81,7 @@ public class AnnouncementService {
                 .build();
 
         AnnouncementEntity saved = announcementRepository.save(announcement);
+        notifyAudience(saved, currentEmployee);
         if (company != null && company.getTelegramChatId() != null) {
                 try {
                     telegramService.sendAnnouncementNotification(
@@ -88,6 +95,33 @@ public class AnnouncementService {
             }
             return AnnouncementResponse.fromEntity(saved);
         }
+
+    /**
+     * In-app notification for everyone the announcement targets: the department if one is
+     * set, otherwise the company, otherwise all employees. Skips the author and terminated staff.
+     */
+    private void notifyAudience(AnnouncementEntity announcement, EmployeeDetails author) {
+        List<EmployeeDetails> audience;
+        if (announcement.getDepartment() != null) {
+            audience = employeeRepository.findByDepartment_Id(announcement.getDepartment().getId());
+        } else if (announcement.getCompany() != null) {
+            audience = employeeRepository.findByCompanyId(announcement.getCompany().getId().intValue());
+        } else {
+            audience = employeeRepository.findAll();
+        }
+
+        List<EmployeeDetails> recipients = audience.stream()
+                .filter(employee -> !employee.getId().equals(author.getId()))
+                .filter(employee -> employee.getEmployeeStatus() != EmployementStatus.Terminated)
+                .collect(Collectors.toList());
+
+        String description = announcement.getDescription();
+        String preview = description != null && description.length() > ANNOUNCEMENT_PREVIEW_LENGTH
+                ? description.substring(0, ANNOUNCEMENT_PREVIEW_LENGTH) + "..."
+                : description;
+        notificationService.notifyAll(recipients, NotificationType.ANNOUNCEMENT,
+                announcement.getTitle(), preview, announcement.getId());
+    }
 
     /**
      * Retrieve all announcements.
