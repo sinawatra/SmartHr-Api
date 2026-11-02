@@ -1672,6 +1672,149 @@
           ]
         },
         {
+          "name": "Notification",
+          "item": [
+            {
+              "name": "My Notifications",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{adminToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/notifications?unreadOnly=false&page=0&size=10",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "notifications"
+                  ],
+                  "query": [
+                    {
+                      "key": "unreadOnly",
+                      "value": "false"
+                    },
+                    {
+                      "key": "page",
+                      "value": "0"
+                    },
+                    {
+                      "key": "size",
+                      "value": "10"
+                    }
+                  ]
+                },
+                "description": "Logged-in user's notifications, newest first. Set unreadOnly=true to only get unread ones. Each item: id, type, title, message, referenceId, hasRead, readAt, createdAt. referenceId is the leave request / evaluation / employee / announcement ID depending on type."
+              },
+              "response": []
+            },
+            {
+              "name": "Unread Count",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{adminToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/notifications/unread-count",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "notifications",
+                    "unread-count"
+                  ]
+                },
+                "description": "Number of unread notifications for the bell badge. The frontend polls this every 30-60 seconds."
+              },
+              "response": []
+            },
+            {
+              "name": "Mark As Read",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{adminToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "PATCH",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/notifications/1/read",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "notifications",
+                    "1",
+                    "read"
+                  ]
+                },
+                "description": "Marks one notification as read. Returns 404 if it does not belong to the logged-in user."
+              },
+              "response": []
+            },
+            {
+              "name": "Mark All As Read",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{adminToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "PATCH",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/notifications/read-all",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "notifications",
+                    "read-all"
+                  ]
+                },
+                "description": "Marks all of the logged-in user's notifications as read."
+              },
+              "response": []
+            }
+          ]
+        },
+        {
           "name": "Login",
           "event": [
             {
@@ -2141,6 +2284,149 @@
                     "change-password"
                   ]
                 }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Notification",
+          "item": [
+            {
+              "name": "My Notifications",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{userToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/notifications?unreadOnly=false&page=0&size=10",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "notifications"
+                  ],
+                  "query": [
+                    {
+                      "key": "unreadOnly",
+                      "value": "false"
+                    },
+                    {
+                      "key": "page",
+                      "value": "0"
+                    },
+                    {
+                      "key": "size",
+                      "value": "10"
+                    }
+                  ]
+                },
+                "description": "Logged-in user's notifications, newest first. Set unreadOnly=true to only get unread ones. Each item: id, type, title, message, referenceId, hasRead, readAt, createdAt. referenceId is the leave request / evaluation / employee / announcement ID depending on type."
+              },
+              "response": []
+            },
+            {
+              "name": "Unread Count",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{userToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/notifications/unread-count",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "notifications",
+                    "unread-count"
+                  ]
+                },
+                "description": "Number of unread notifications for the bell badge. The frontend polls this every 30-60 seconds."
+              },
+              "response": []
+            },
+            {
+              "name": "Mark As Read",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{userToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "PATCH",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/notifications/1/read",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "notifications",
+                    "1",
+                    "read"
+                  ]
+                },
+                "description": "Marks one notification as read. Returns 404 if it does not belong to the logged-in user."
+              },
+              "response": []
+            },
+            {
+              "name": "Mark All As Read",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{userToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "PATCH",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/notifications/read-all",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "notifications",
+                    "read-all"
+                  ]
+                },
+                "description": "Marks all of the logged-in user's notifications as read."
               },
               "response": []
             }

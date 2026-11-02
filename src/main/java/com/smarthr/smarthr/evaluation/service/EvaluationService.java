@@ -34,6 +34,8 @@ import com.smarthr.smarthr.evaluation.dto.EvaluationItemRequest;
 import com.smarthr.smarthr.evaluation.dto.SubmitEvaluationRequest;
 import com.smarthr.smarthr.evaluation.dto.EvaluationItemResponse;
 import com.smarthr.smarthr.evaluation.dto.EvaluationResponse;
+import com.smarthr.smarthr.notification.entity.NotificationType;
+import com.smarthr.smarthr.notification.service.NotificationService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -47,6 +49,7 @@ public class EvaluationService {
     private final EmployeeRepository employeeRepository;
     private final EvaluationCriteriaRepository evaluationCriteriaRepository;
     private final EvaluationRepository evaluationRepository;
+    private final NotificationService notificationService;
     private final Clock clock;
 
     /**
@@ -108,6 +111,15 @@ public class EvaluationService {
         evaluation.setItems(items);
 
         EvaluationEntity saved = evaluationRepository.save(evaluation);
+
+        if (saved.getProbationRecommendation() != null) {
+            notificationService.notifyRole("HR", employee.getId(), NotificationType.PROBATION_EVALUATION_SUBMITTED,
+                    "Probation evaluation awaiting confirmation",
+                    displayName(evaluator) + " submitted a probation evaluation for " + displayName(employee)
+                            + " recommending " + saved.getProbationRecommendation() + ".",
+                    saved.getId());
+        }
+
         return mapToResponse(saved);
     }
 
@@ -187,8 +199,22 @@ public class EvaluationService {
         evaluation.setHrDecidedBy(hr);
         evaluation.setHrDecidedAt(LocalDateTime.now(clock));
         evaluation.setStatus(EvaluationStatus.CONFIRMED);
+        EvaluationEntity saved = evaluationRepository.save(evaluation);
 
-        return mapToResponse(evaluationRepository.save(evaluation));
+        String employeeMessage = switch (decision) {
+            case PASS -> "Congratulations, you have passed your probation and are now full staff.";
+            case FAIL -> "You did not pass your probation. Your last working date is " + employee.getEndDate() + ".";
+            case DELAY -> "Your probation has been extended until " + employee.getProbationEndDate() + ".";
+        };
+        String managerMessage = switch (decision) {
+            case PASS -> displayName(employee) + " has passed probation and is now full staff.";
+            case FAIL -> displayName(employee) + " did not pass probation. Last working date: " + employee.getEndDate() + ".";
+            case DELAY -> displayName(employee) + "'s probation has been extended until " + employee.getProbationEndDate() + ".";
+        };
+        notificationService.notify(employee, NotificationType.PROBATION_DECIDED, "Probation result", employeeMessage, saved.getId());
+        notificationService.notifyManagerOf(employee, NotificationType.PROBATION_DECIDED, "Probation result", managerMessage, saved.getId());
+
+        return mapToResponse(saved);
     }
 
     private EvaluationResponse mapToResponse(EvaluationEntity entity) {

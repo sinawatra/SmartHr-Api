@@ -35,6 +35,8 @@ import com.smarthr.smarthr.leave.dto.LeaveRequestResponse;
 import com.smarthr.smarthr.common.dto.PagedResponse;
 import com.smarthr.smarthr.leave.dto.UpdateLeaveStatusResponse;
 import com.smarthr.smarthr.common.service.CloudinaryService;
+import com.smarthr.smarthr.notification.entity.NotificationType;
+import com.smarthr.smarthr.notification.service.NotificationService;
 
 /**
  * Service class handling leave request business logic.
@@ -47,15 +49,18 @@ public class LeaveRequestService {
     private final LeaveTypeRepository leaveTypeRepository;
     private final LeaveRequestRepository leaveRequestRepository;
     private final CloudinaryService cloudinaryService;
+    private final NotificationService notificationService;
 
     public LeaveRequestService(EmployeeRepository employeeRepository,
                                 LeaveTypeRepository leaveTypeRepository,
                                 LeaveRequestRepository leaveRequestRepository,
-                                CloudinaryService cloudinaryService) {
+                                CloudinaryService cloudinaryService,
+                                NotificationService notificationService) {
         this.employeeRepository = employeeRepository;
         this.leaveTypeRepository = leaveTypeRepository;
         this.leaveRequestRepository = leaveRequestRepository;
         this.cloudinaryService = cloudinaryService;
+        this.notificationService = notificationService;
     }
 
     /**
@@ -125,6 +130,13 @@ public class LeaveRequestService {
         }
 
         LeaveRequestEntity saved = leaveRequestRepository.save(leaveRequest);
+
+        notificationService.notifyManagerOf(employee, NotificationType.LEAVE_REQUESTED,
+                "New leave request",
+                displayName(employee) + " requested " + leaveType.getName() + " leave from "
+                        + saved.getStartDate() + " to " + saved.getEndDate() + ".",
+                saved.getId());
+
         return mapToResponse(saved);
     }
 
@@ -185,6 +197,17 @@ public class LeaveRequestService {
 
         // 6. Save entity
         LeaveRequestEntity saved = leaveRequestRepository.save(leaveRequest);
+
+        boolean approved = saved.getStatus() == LeaveStatus.APPROVED;
+        String decision = approved ? "approved" : "rejected";
+        String message = "Your " + saved.getLeaveType().getName() + " leave from " + saved.getStartDate()
+                + " to " + saved.getEndDate() + " was " + decision + " by " + displayName(approver) + ".";
+        if (saved.getRemarks() != null && !saved.getRemarks().isBlank()) {
+            message += " Reason: " + saved.getRemarks();
+        }
+        notificationService.notify(requester,
+                approved ? NotificationType.LEAVE_APPROVED : NotificationType.LEAVE_REJECTED,
+                "Leave request " + decision, message, saved.getId());
 
         return UpdateLeaveStatusResponse.builder()
                 .status(saved.getStatus())

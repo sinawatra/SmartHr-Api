@@ -24,4 +24,10 @@ public interface EmployeeRepository extends JpaRepository<EmployeeDetails, Long>
     long countByEmployeeStatus(EmployementStatus employeeStatus);
     long countByEmployeeStatusAndProbationEndDateBetween(EmployementStatus employeeStatus, LocalDate from, LocalDate to);
     long countByEmployeeStatusAndProbationEndDateBefore(EmployementStatus employeeStatus, LocalDate date);
+
+    // Notification recipients
+    List<EmployeeDetails> findByRole_Name(String roleName);
+    List<EmployeeDetails> findByCompanyId(Integer companyId);
+    List<EmployeeDetails> findByDepartment_Id(Long departmentId);
+    List<EmployeeDetails> findByEmployeeStatusAndProbationEndDate(EmployementStatus employeeStatus, LocalDate probationEndDate);
 }

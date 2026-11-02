@@ -48,6 +48,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/v1/leave-requests/**").authenticated()
                 .requestMatchers("/api/v1/evaluations/**").authenticated()
                 .requestMatchers("/api/v1/evaluation-criteria/**").authenticated()
+                .requestMatchers("/api/v1/notifications", "/api/v1/notifications/**").authenticated()
                 .anyRequest().permitAll()
             )
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
