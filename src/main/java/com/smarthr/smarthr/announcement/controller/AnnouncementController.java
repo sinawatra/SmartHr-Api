@@ -31,21 +31,21 @@ public class AnnouncementController {
 
 
     @GetMapping
-    @PreAuthorize("hasAnyAuthority('USER', 'ADMIN', 'ROLE_ADMIN')")
+    @PreAuthorize("hasAnyAuthority('USER', 'ADMIN', 'ROLE_ADMIN', 'HR')")
     public ResponseEntity<ApiResponse<PagedResponse<AnnouncementResponse>>> getAnnouncementsPaged(Pageable pageable) {
         PagedResponse<AnnouncementResponse> response = announcementService.getAllAnnouncements(pageable);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyAuthority('USER', 'ADMIN', 'ROLE_ADMIN')")
+    @PreAuthorize("hasAnyAuthority('USER', 'ADMIN', 'ROLE_ADMIN','HR')")
     public ResponseEntity<ApiResponse<AnnouncementResponse>> getAnnouncementById(@PathVariable Long id) {
         AnnouncementResponse response = announcementService.getAnnouncementById(id);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 
     @PostMapping
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'ROLE_ADMIN')")
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'ROLE_ADMIN','HR')")
     public ResponseEntity<ApiResponse<AnnouncementResponse>> createAnnouncement(@RequestBody AnnouncementRequest request) {
         AnnouncementResponse response = announcementService.createAnnouncement(request);
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -53,7 +53,7 @@ public class AnnouncementController {
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'ROLE_ADMIN')")
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'ROLE_ADMIN','HR')")
     public ResponseEntity<ApiResponse<AnnouncementResponse>> updateAnnouncement(
             @PathVariable Long id,
             @RequestBody AnnouncementRequest request) {
@@ -62,7 +62,7 @@ public class AnnouncementController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'ROLE_ADMIN')")
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'ROLE_ADMIN','HR')")
     public ResponseEntity<ApiResponse<Void>> deleteAnnouncement(@PathVariable Long id) {
         announcementService.deleteAnnouncement(id);
         return ResponseEntity.ok(ApiResponse.success("Announcement deleted successfully", null));
@@ -71,7 +71,7 @@ public class AnnouncementController {
 
     //Push Existing Announcement to Telegram Channel
     @PostMapping("/{id}/push")
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'ROLE_ADMIN')")
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'ROLE_ADMIN','HR')")
     public ResponseEntity<ApiResponse<AnnouncementResponse>> pushAnnouncementToTelegram(@PathVariable Long id) {
         AnnouncementResponse response = announcementService.pushAnnouncementToTelegram(id);
         return ResponseEntity.ok(ApiResponse.success("Announcement pushed to Telegram successfully", response));    }
