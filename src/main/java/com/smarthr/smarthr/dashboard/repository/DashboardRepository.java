@@ -17,23 +17,25 @@ import com.smarthr.smarthr.leave.entity.LeaveStatus;
  */
 public interface DashboardRepository extends Repository<EmployeeDetails, Long> {
 
-    @Query("SELECT COUNT(e) FROM EmployeeDetails e")
+    @Query("SELECT COUNT(e) FROM EmployeeDetails e WHERE e.deleted = false")
     long countTotalEmployees();
 
-    @Query("SELECT COUNT(e) FROM EmployeeDetails e WHERE e.employeeStatus IS NULL OR e.employeeStatus NOT IN (:statuses)")
+    @Query("SELECT COUNT(e) FROM EmployeeDetails e WHERE e.deleted = false"
+            + " AND (e.employeeStatus IS NULL OR e.employeeStatus NOT IN (:statuses))")
     long countActiveEmployees(@Param("statuses") Collection<EmployementStatus> statuses);
 
-    @Query("SELECT COUNT(DISTINCT a.employee.id) FROM AttendanceEntity a WHERE a.clockIn BETWEEN :start AND :end")
+    @Query("SELECT COUNT(DISTINCT a.employee.id) FROM AttendanceEntity a "
+            + "WHERE a.clockIn BETWEEN :start AND :end AND a.employee.deleted = false")
     long countPresentBetween(@Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
 
     @Query("SELECT COUNT(DISTINCT l.employee.id) FROM LeaveRequestEntity l "
-            + "WHERE l.status = :status AND :onDate BETWEEN l.startDate AND l.endDate")
+            + "WHERE l.status = :status AND :onDate BETWEEN l.startDate AND l.endDate AND l.employee.deleted = false")
     long countOnLeaveOn(@Param("status") LeaveStatus status, @Param("onDate") LocalDate onDate);
 
-    @Query("SELECT COUNT(l) FROM LeaveRequestEntity l WHERE l.status = :status")
+    @Query("SELECT COUNT(l) FROM LeaveRequestEntity l WHERE l.status = :status AND l.employee.deleted = false")
     long countLeaveRequestsByStatus(@Param("status") LeaveStatus status);
 
     @Query("SELECT COUNT(e) FROM EmployeeDetails e "
-            + "WHERE e.probationEndDate IS NOT NULL AND e.probationEndDate BETWEEN :from AND :to")
+            + "WHERE e.deleted = false AND e.probationEndDate IS NOT NULL AND e.probationEndDate BETWEEN :from AND :to")
     long countProbationEndingBetween(@Param("from") LocalDate from, @Param("to") LocalDate to);
 }

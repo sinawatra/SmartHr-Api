@@ -1,5 +1,6 @@
 package com.smarthr.smarthr.employee.service;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -34,6 +35,9 @@ import com.smarthr.smarthr.company.repository.CompanyRepository;
 import com.smarthr.smarthr.onboarding.repository.DefaultOnboardingTaskRepository;
 import com.smarthr.smarthr.department.repository.DepartmentRepository;
 import com.smarthr.smarthr.employee.repository.EmployeeRepository;
+import com.smarthr.smarthr.leave.entity.LeaveRequestEntity;
+import com.smarthr.smarthr.leave.entity.LeaveStatus;
+import com.smarthr.smarthr.leave.repository.LeaveRequestRepository;
 import com.smarthr.smarthr.onboarding.repository.OnboardingTaskRepository;
 import com.smarthr.smarthr.role.repository.RoleRepository;
 import com.smarthr.smarthr.auth.dto.ChangePasswordRequest;
@@ -66,6 +70,7 @@ public class EmployeeService {
     private final DefaultOnboardingTaskRepository defaultOnboardingTaskRepository;
     private final CompanyRepository companyRepository;
     private final AttendanceRepository attendanceRepository;
+    private final LeaveRequestRepository leaveRequestRepository;
 
     /**
      * Authenticate user/admin by username and password.
@@ -212,7 +217,7 @@ public class EmployeeService {
             throw new IllegalArgumentException("Password is required");
         }
 
-        if (employeeRepository.existsByUsername(request.getUsername())) {
+        if (employeeRepository.existsByUsernameIncludingDeleted(request.getUsername())) {
             throw new UserAlreadyExistsException("Username '" + request.getUsername() + "' is already in use");
         }
 
@@ -391,7 +396,7 @@ public class EmployeeService {
 
         if (request.getUsername() != null && !request.getUsername().isBlank() 
                 && !request.getUsername().equals(employee.getUsername())) {
-            if (employeeRepository.existsByUsername(request.getUsername())) {
+            if (employeeRepository.existsByUsernameIncludingDeleted(request.getUsername())) {
                 throw new UserAlreadyExistsException("Username '" + request.getUsername() + "' is already in use");
             }
             employee.setUsername(request.getUsername());
@@ -437,13 +442,23 @@ public class EmployeeService {
     }
 
     /**
-     * Delete employee by ID.
+     * Soft-delete employee by ID. The row is kept so related history stays intact,
+     * but the employee disappears from all queries and can no longer log in.
+     * Pending leave requests are rejected so they drop out of the approval queues.
      */
     public void deleteEmployee(Long id) {
-        if (!employeeRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Employee not found with id: " + id);
+        EmployeeDetails employee = employeeRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Employee not found with id: " + id));
+        employee.setDeleted(true);
+        employee.setDeletedAt(Instant.now());
+        employeeRepository.save(employee);
+
+        List<LeaveRequestEntity> pendingLeaves = leaveRequestRepository.findByEmployeeIdAndStatus(id, LeaveStatus.PENDING);
+        for (LeaveRequestEntity leave : pendingLeaves) {
+            leave.setStatus(LeaveStatus.REJECTED);
+            leave.setRemarks("Automatically rejected: employee was deleted");
         }
-        employeeRepository.deleteById(id);
+        leaveRequestRepository.saveAll(pendingLeaves);
     }
 
     //Get Employement status 

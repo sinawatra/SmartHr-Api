@@ -26,6 +26,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import com.smarthr.smarthr.employee.entity.EmployeeDetails;
 import com.smarthr.smarthr.role.entity.RoleEntity;
 import com.smarthr.smarthr.common.exception.InvalidCredentialsException;
+import com.smarthr.smarthr.common.exception.ResourceNotFoundException;
 import com.smarthr.smarthr.common.exception.UserAlreadyExistsException;
 import com.smarthr.smarthr.employee.repository.EmployeeRepository;
 import com.smarthr.smarthr.role.repository.RoleRepository;
@@ -72,6 +73,9 @@ class EmployeeServiceTest {
 
     @Mock
     private com.smarthr.smarthr.attendance.repository.AttendanceRepository attendanceRepository;
+
+    @Mock
+    private com.smarthr.smarthr.leave.repository.LeaveRequestRepository leaveRequestRepository;
 
     @InjectMocks
     private EmployeeService employeeService;
@@ -178,7 +182,7 @@ class EmployeeServiceTest {
                 .build();
 
         when(roleRepository.findById(2)).thenReturn(Optional.of(userRoleEntity));
-        when(employeeRepository.existsByUsername("new_employee")).thenReturn(false);
+        when(employeeRepository.existsByUsernameIncludingDeleted("new_employee")).thenReturn(false);
         when(employeeRepository.existsByEmail("jane@smarthr.com")).thenReturn(false);
         when(passwordEncoder.encode("emp123")).thenReturn("encoded_emp123");
         when(employeeRepository.save(any(EmployeeDetails.class))).thenReturn(savedEmployee);
@@ -213,7 +217,7 @@ class EmployeeServiceTest {
                 .build();
 
         when(roleRepository.findById(2)).thenReturn(Optional.of(userRoleEntity));
-        when(employeeRepository.existsByUsername("onboarded_emp")).thenReturn(false);
+        when(employeeRepository.existsByUsernameIncludingDeleted("onboarded_emp")).thenReturn(false);
         when(employeeRepository.existsByEmail("bob@smarthr.com")).thenReturn(false);
         when(passwordEncoder.encode("emp123")).thenReturn("encoded_emp123");
         when(employeeRepository.save(any(EmployeeDetails.class))).thenReturn(savedEmployee);
@@ -256,7 +260,7 @@ class EmployeeServiceTest {
                 com.smarthr.smarthr.onboarding.entity.DefaultOnboardingTaskEntity.builder().id(2).taskName("Default Task 2").active(true).build();
 
         when(roleRepository.findById(2)).thenReturn(Optional.of(userRoleEntity));
-        when(employeeRepository.existsByUsername("default_onboard_emp")).thenReturn(false);
+        when(employeeRepository.existsByUsernameIncludingDeleted("default_onboard_emp")).thenReturn(false);
         when(employeeRepository.existsByEmail("alice@smarthr.com")).thenReturn(false);
         when(passwordEncoder.encode("emp123")).thenReturn("encoded_emp123");
         when(employeeRepository.save(any(EmployeeDetails.class))).thenReturn(savedEmployee);
@@ -281,7 +285,7 @@ class EmployeeServiceTest {
                 .password("emp123")
                 .build();
 
-        when(employeeRepository.existsByUsername("john_doe")).thenReturn(true);
+        when(employeeRepository.existsByUsernameIncludingDeleted("john_doe")).thenReturn(true);
 
         assertThrows(UserAlreadyExistsException.class, () -> employeeService.createEmployee(request));
     }
@@ -365,5 +369,31 @@ class EmployeeServiceTest {
         assertEquals("john_doe", response.getUsername());
         assertTrue(response.isHasClockIn());
         assertFalse(response.isHasClockOut());
+    }
+
+    @Test
+    void testDeleteEmployee_SoftDeletes() {
+        com.smarthr.smarthr.leave.entity.LeaveRequestEntity pending = new com.smarthr.smarthr.leave.entity.LeaveRequestEntity();
+        pending.setStatus(com.smarthr.smarthr.leave.entity.LeaveStatus.PENDING);
+        when(employeeRepository.findById(2L)).thenReturn(Optional.of(mockUser));
+        when(leaveRequestRepository.findByEmployeeIdAndStatus(2L, com.smarthr.smarthr.leave.entity.LeaveStatus.PENDING))
+                .thenReturn(List.of(pending));
+
+        employeeService.deleteEmployee(2L);
+
+        assertTrue(mockUser.isDeleted());
+        assertNotNull(mockUser.getDeletedAt());
+        assertEquals(com.smarthr.smarthr.leave.entity.LeaveStatus.REJECTED, pending.getStatus());
+        verify(employeeRepository).save(mockUser);
+        verify(leaveRequestRepository).saveAll(List.of(pending));
+        verify(employeeRepository, never()).deleteById(any());
+    }
+
+    @Test
+    void testDeleteEmployee_NotFound() {
+        when(employeeRepository.findById(99L)).thenReturn(Optional.empty());
+
+        assertThrows(ResourceNotFoundException.class, () -> employeeService.deleteEmployee(99L));
+        verify(employeeRepository, never()).save(any());
     }
 }

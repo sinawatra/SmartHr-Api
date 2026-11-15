@@ -22,6 +22,7 @@ import com.smarthr.smarthr.leave.entity.LeaveStatus;
 public interface LeaveRequestRepository extends JpaRepository<LeaveRequestEntity, Long> {
     java.util.List<LeaveRequestEntity> findByEmployeeId(Long employeeId);
     Page<LeaveRequestEntity> findByEmployeeId(Long employeeId, Pageable pageable);
+    List<LeaveRequestEntity> findByEmployeeIdAndStatus(Long employeeId, LeaveStatus status);
 
     // Requests raised by the direct reports of a given manager, filtered by status
     // (used by the LINE_MANAGER approval queue).
