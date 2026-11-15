@@ -31,7 +31,7 @@ public class CredentialDataInitializer implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        if (employeeRepository.existsByUsername(SEED_USERNAME)) {
+        if (employeeRepository.existsByUsernameIncludingDeleted(SEED_USERNAME)) {
             return;
         }
 

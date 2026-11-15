@@ -29,6 +29,10 @@ import com.smarthr.smarthr.role.entity.RoleEntity;
 
 /**
  * Entity representing employee details including authentication credentials.
+ *
+ * <p>Employees are soft-deleted: the row stays so attendance, leave, evaluations and other
+ * history keep their references. EmployeeRepository lookups exclude deleted rows; the
+ * restriction is not on the entity itself, otherwise loading those history rows would fail.
  */
 @Entity
 @Table(name = "employeeDetails")
@@ -82,6 +86,13 @@ public class EmployeeDetails {
     private String telegramChatId;
     private String telegramUsername;
     private LocalDate endDate;
+
+    @Column(nullable = false, columnDefinition = "boolean default false")
+    @Builder.Default
+    private boolean deleted = false;
+
+    @Column(name = "deleted_at")
+    private Instant deletedAt;
     
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
