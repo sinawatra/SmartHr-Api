@@ -238,6 +238,7 @@ public class EmployeeService {
                 .department(assignedDepartment)
                 .managerId(request.getManagerId())
                 .employeeCode(request.getEmployeeCode())
+                .position(request.getPosition())
                 .firstName(request.getFirstName())
                 .lastName(request.getLastName())
                 .email(request.getEmail())
@@ -421,6 +422,7 @@ public class EmployeeService {
         if (request.getEmail() != null) employee.setEmail(request.getEmail());
         if (request.getPhoneNumber() != null) employee.setPhoneNumber(request.getPhoneNumber());
         if (request.getEmployeeCode() != null) employee.setEmployeeCode(request.getEmployeeCode());
+        if (request.getPosition() != null) employee.setPosition(request.getPosition());
         if (request.getEmployeeStatus() != null) employee.setEmployeeStatus(request.getEmployeeStatus());
         if (request.getCompanyId() != null) {
             validateCompany(request.getCompanyId());
