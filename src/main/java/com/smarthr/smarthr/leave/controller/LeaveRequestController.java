@@ -92,16 +92,16 @@ public class LeaveRequestController {
     // 2b. Any logged-in user can view their own leave balance (entitlement minus
     //     approved and pending days) for every leave type
     @GetMapping("/balance")
-    @PreAuthorize("hasAnyAuthority('USER', 'ADMIN', 'LINE_MANAGER')")
+    @PreAuthorize("hasAnyAuthority('USER', 'ADMIN', 'HR', 'LINE_MANAGER')")
     public ResponseEntity<ApiResponse<List<LeaveBalanceResponse>>> getMyLeaveBalance() {
         List<LeaveBalanceResponse> balance = leaveRequestService.getLeaveBalanceForCurrentUser();
         return ResponseEntity.ok(ApiResponse.success("Leave balance retrieved successfully", balance));
     }
 
     // 2c. A line manager sees leave requests from their direct reports that are
-    //     awaiting a decision; an ADMIN sees every pending request
+    //     awaiting a decision; an ADMIN or HR sees every pending request
     @GetMapping("/pending-approvals")
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'LINE_MANAGER')")
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'HR', 'LINE_MANAGER')")
     public ResponseEntity<ApiResponse<PagedResponse<LeaveRequestResponse>>> getPendingApprovals(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
@@ -114,9 +114,9 @@ public class LeaveRequestController {
         return ResponseEntity.ok(ApiResponse.success("Pending leave approvals retrieved successfully", response));
     }
 
-    // 3. A line manager (for their reports) or an ADMIN can approve or reject leave requests
+    // 3. A line manager (for their reports), an ADMIN or HR can approve or reject leave requests
     @PutMapping("/{id}/status")
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'LINE_MANAGER')")
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'HR', 'LINE_MANAGER')")
     public ResponseEntity<ApiResponse<UpdateLeaveStatusResponse>> updateStatus(
             @PathVariable Long id, 
             @Valid @RequestBody UpdateLeaveRequest dto) {
@@ -126,9 +126,9 @@ public class LeaveRequestController {
         return ResponseEntity.ok(ApiResponse.success("Update Leave Status Successfully", response));
     }
 
-    // 4. Admins can view all leave requests with pagination
+    // 4. Admins and HR can view all leave requests with pagination
     @GetMapping
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'HR')")
     public ResponseEntity<ApiResponse<PagedResponse<LeaveRequestResponse>>> getAllRequests(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
@@ -144,7 +144,7 @@ public class LeaveRequestController {
 
     // 5. Get all leave statuses
     @GetMapping("/statuses")
-    @PreAuthorize("hasAnyAuthority('USER', 'ADMIN', 'LINE_MANAGER')")
+    @PreAuthorize("hasAnyAuthority('USER', 'ADMIN', 'HR', 'LINE_MANAGER')")
     public ResponseEntity<ApiResponse<List<String>>> getAllLeaveStatuses() {
         List<String> statuses = leaveRequestService.getAllLeaveStatuses();
         return ResponseEntity.ok(ApiResponse.success(statuses)); 
@@ -160,7 +160,7 @@ public class LeaveRequestController {
 
     // 7. Get all leave types
     @GetMapping("/leave-types")
-    @PreAuthorize("hasAnyAuthority('USER', 'ADMIN', 'LINE_MANAGER')")
+    @PreAuthorize("hasAnyAuthority('USER', 'ADMIN', 'HR', 'LINE_MANAGER')")
     public ResponseEntity<ApiResponse<List<CreateLeaveTypeResponse>>> getAllLeaveTypes() {
         List<CreateLeaveTypeResponse> leaveTypes = leaveRequestService.getAllLeaveTypes();
         return ResponseEntity.ok(ApiResponse.success(leaveTypes));  }

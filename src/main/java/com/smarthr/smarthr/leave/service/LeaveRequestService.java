@@ -144,7 +144,7 @@ public class LeaveRequestService {
      * Approve or reject a pending leave request.
      *
      * <p>The caller must be the requesting employee's direct manager
-     * ({@code employee.managerId == currentUser.id}) or an ADMIN. A manager
+     * ({@code employee.managerId == currentUser.id}), an ADMIN or HR. A manager
      * cannot approve or reject their own request. Only PENDING requests can be
      * transitioned, and only to APPROVED or REJECTED.
      */
@@ -171,10 +171,10 @@ public class LeaveRequestService {
                     + leaveRequest.getStatus());
         }
 
-        // 4. Authorization: only the employee's direct manager or an ADMIN may decide
+        // 4. Authorization: only the employee's direct manager, an ADMIN or HR may decide
         EmployeeDetails approver = currentEmployee();
         EmployeeDetails requester = leaveRequest.getEmployee();
-        boolean isAdmin = hasAuthority("ADMIN");
+        boolean isAdmin = hasAuthority("ADMIN") || hasAuthority("HR");
         boolean isDirectManager = requester.getManagerId() != null
                 && Long.valueOf(requester.getManagerId().longValue()).equals(approver.getId());
 
@@ -330,12 +330,12 @@ public class LeaveRequestService {
 
     /**
      * Leave requests raised by the current manager's direct reports that are
-     * still awaiting a decision. An ADMIN sees every pending request.
+     * still awaiting a decision. An ADMIN or HR sees every pending request.
      */
     @Transactional(readOnly = true)
     public PagedResponse<LeaveRequestResponse> getPendingApprovalsForCurrentManager(Pageable pageable) {
         EmployeeDetails manager = currentEmployee();
-        Page<LeaveRequestEntity> page = hasAuthority("ADMIN")
+        Page<LeaveRequestEntity> page = hasAuthority("ADMIN") || hasAuthority("HR")
                 ? leaveRequestRepository.findByStatus(LeaveStatus.PENDING, pageable)
                 : leaveRequestRepository.findByEmployee_ManagerIdAndStatus(
                         manager.getId().intValue(), LeaveStatus.PENDING, pageable);
