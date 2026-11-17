@@ -21,6 +21,7 @@ public class CreateEmployeeRequest {
     private Integer companyId;
     private Integer departmentId;
     private Integer managerId;
+    private String position;
     private String employeeCode;
     private String firstName;
     private String lastName;
