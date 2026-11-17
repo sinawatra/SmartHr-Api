@@ -28,6 +28,7 @@ public class EmployeeResponse {
     private String firstName;
     private String lastName;
     private String email;
+    private String position;
     private String phoneNumber;
     private boolean  hasClockIn;
     private boolean hasClockOut;
@@ -60,6 +61,7 @@ public class EmployeeResponse {
                 .managerId(employee.getManagerId())
                 .employeeCode(employee.getEmployeeCode())
                 .firstName(employee.getFirstName())
+                .position(employee.getPosition() != null ? employee.getPosition() : null)
                 .lastName(employee.getLastName())
                 .email(employee.getEmail())
                 .phoneNumber(employee.getPhoneNumber())

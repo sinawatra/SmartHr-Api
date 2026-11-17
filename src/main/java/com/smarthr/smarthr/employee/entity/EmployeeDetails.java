@@ -53,6 +53,7 @@ public class EmployeeDetails {
     @Column(nullable = false)
     private String password;
 
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "role_id", nullable = false) // Maps to role_id in DB
     private RoleEntity role; 
@@ -65,6 +66,7 @@ public class EmployeeDetails {
 
     private Integer managerId;
     private String employeeCode;
+    private String position;
     private String firstName;
     private String lastName; 
     
